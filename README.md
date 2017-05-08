@@ -1,6 +1,6 @@
 # Client-side File encryption for implementing a zero-knowledge system  
 ## Google Summer of Code Project for Drupal  
-#### Student: Tameesh Biswas (tameeshb)  
+#### Student: Tameesh Biswas (@tameeshb)  
 #### Mentor: Colan Schwartz (@colan)  
   
 ## Objective  
