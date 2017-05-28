@@ -1,0 +1,5 @@
+name: Client side file crypto
+type: module
+description: Client side crypto for files for a zero knowledge system
+core: 8.x
+package: client_side_file_crypto

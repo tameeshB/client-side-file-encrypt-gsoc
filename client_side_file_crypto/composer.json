@@ -1,0 +1,14 @@
+{
+  "name": "drupal/client_side_file_crypto",
+  "type": "drupal-module",
+  "description": "Client side crypto for files for a zero knowledge system",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/client_side_file_crypto",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/client_side_file_crypto",
+    "source": "http://cgit.drupalcode.org/client_side_file_crypto"
+  },
+  "require": { }
+}
