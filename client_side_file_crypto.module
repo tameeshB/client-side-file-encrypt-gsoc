@@ -6,21 +6,51 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\user\Entity\User;
+use Drupal\Core\Url;
+use Drupal\Core\Routing\Router;
 
 /**
  * Implements hook_help().
  */
 function client_side_file_crypto_help($route_name, RouteMatchInterface $route_match) {
+
   switch ($route_name) {
     // Main module help for the client_side_file_crypto module.
     case 'help.page.client_side_file_crypto':
       $output = '';
-      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<h2>' . t('Client-side File encryption for implementing a zero-knowledge system') . '</h2>';
+      $output .= 'URL:'.gettype(Url::fromRoute('node.add_page')).print_r( $data['tabs'][0]['user.page']);
+      $output .= '<h4>' . t('Google Summer of Code Project for Drupal') . '</h4>';
+      $output .= '<h4>' . t('Student: Tameesh Biswas (@tameeshb)') . '</h4>';
+      $output .= '<h4>' . t('Mentor: Colan Schwartz (@colan)') . '</h4>';
+      $output .= '<h4>' . t('Objective').'</h4>';
+      $output .= '<p>' . t('This project will involve building a complete module for Drupal 8 site to make it a zero-knowledge system using front-end JS encryption so that the users can rely on the site when uploading sensitive files, including images on confidential posts, not having to worry about data being stolen in case the server gets compromised.').'</p>';
       $output .= '<p>' . t('Client side crypto for files for a zero knowledge system') . '</p>';
       return $output;
-
     default:
   }
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ *
+ *
+ */
+function client_side_file_crypto_menu_local_tasks_alter(&$data, $route_name) {
+    $data['tabs']['user.login'] = [
+        '#theme' => 'menu_local_task',
+        '#link' => [
+            'title' => t('Example tab'),
+            'url' => gettype(Url::fromRoute('node.add_page')),
+            'localized_options' => [
+                'attributes' => [
+                    'title' => t('Add content'),
+                ],
+            ],
+        ],
+    ];
+
 }
 
 /**
@@ -33,3 +63,4 @@ function client_side_file_crypto_theme() {
     ],
   ];
 }
+

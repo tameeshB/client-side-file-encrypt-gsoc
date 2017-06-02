@@ -1,0 +1,7 @@
+client_side_file_crypto.content:
+  path: '/user/{uid}/addKey'
+  defaults:
+    _controller: '\Drupal\client_side_file_crypto\Controller\client_side_file_cryptoController::reloadKeys'
+    _title: 'Reload the private key'
+  requirements:
+    _permission: 'access content'

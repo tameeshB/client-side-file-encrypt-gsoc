@@ -1,0 +1,99 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the client_side_file_crypto module.
+ */
+
+/**
+ * Implements hook_install().
+ *
+ * Creates some default entries on this module custom table.
+ *
+ * @see hook_install()
+ *
+ * @ingroup client_side_file_crypto
+ */
+function client_side_file_crypto_install() {
+    // Add a default entry.
+    $fields = array(
+        'accessKey' => 'InitialRandomKeyhere',
+        'groupID' => 12,
+        'userID'=>1,
+    );
+    db_insert('client_side_file_crypto_Keys')
+        ->fields($fields)
+        ->execute();
+}
+
+/**
+ * Implements hook_schema().
+ *
+ * Defines the database tables used by this module.
+ *
+ * @see hook_schema()
+ *
+ * @ingroup client_side_file_crypto
+ */
+function client_side_file_crypto_schema() {
+    $schema['client_side_file_crypto_Keys'] = array(
+        'description' => 'Stores all the access keys for the users',
+        'fields' => array(
+            'keyIndex' => array(
+                'type' => 'serial',
+                'not null' => TRUE,
+                'description' => "Index ident for the keys",
+            ),
+            'accessKey' => array(
+                'type' => 'varchar',
+                'length' => 300,
+                'not null' => TRUE,
+                'default' => '',
+                'description' => "The access key that must be decrypted for data access",
+            ),
+            'userID' => array(
+                'type' => 'int',
+                'not null' => TRUE,
+                'description' => "The user ID of the key's owner",
+            ),
+            'groupID' => array(
+                'type' => 'int',
+                'not null' => TRUE,
+                'description' => "The Group ID that this ",
+            ),
+            'salt' => array(
+                'type' => 'varchar',
+                'length' => 255,
+                'not null' => FALSE,
+                'default' => '',
+                'description' => 'Salt used if any',
+            ),
+            'needsKey' => array(
+                'type' => 'int',
+                'default' => 1,
+                'not null' => TRUE,
+                'description' => 'Boolean determines if an access key is required.',
+            ),
+        ),
+        'primary key' => array('keyIndex'),
+        'indexes' => array(
+            'key_pub' => array('accessKey'),
+            'group_key' => array('groupID'),
+        ),
+    );
+
+    return $schema;
+}
+
+/**
+ * Implements hook_schema().
+ *
+ * Defines the database tables used by this module.
+ *
+ * @see hook_schema()
+ *
+ * @ingroup client_side_file_crypto
+ */
+function client_side_file_crypto_uninstall() {
+    db_drop_table('client_side_file_crypto_Keys');
+}
