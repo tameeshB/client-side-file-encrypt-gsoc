@@ -10,6 +10,14 @@ use Drupal\user\Entity\User;
 use Drupal\Core\Url;
 use Drupal\Core\Routing\Router;
 
+
+/**
+ * Implements hook_entity_type_build().
+ */
+//function client_side_file_crypto_entity_type_build(array &$entity_types) {
+//    /** @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
+//    $entity_types['node']->setFormClass('csfc_pubKeys', 'Drupal\menu_ui\MenuForm');
+//}
 /**
  * Implements hook_help().
  */

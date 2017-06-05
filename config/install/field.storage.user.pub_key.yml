@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - user
+  enforced:
+    module:
+      - client_side_file_crypto
+id: user.pub_key
+field_name: pub_key
+entity_type: user
+type: string_long
+settings:
+  case_sensitive: false
+module: core
+locked: true
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

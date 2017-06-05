@@ -6,4 +6,3 @@ package: Encryption
 dependencies:
   - drupal:rest
   - drupal:user
-  - examples:examples

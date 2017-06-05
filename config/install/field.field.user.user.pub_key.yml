@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.user.pub_key
+  module:
+    - user
+  enforced:
+    module:
+      - client_side_file_crypto
+id: user.user.pub_key
+field_name: pub_key
+entity_type: user
+bundle: user
+label: pub_key
+description: 'Public Key'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long
