@@ -1,7 +1,24 @@
-client_side_file_crypto.content:
+client_side_file_crypto.newKeys:
+  path: '/user/{uid}/newKey'
+  defaults:
+    _controller: '\Drupal\client_side_file_crypto\Controller\ClientSideFileCryptoController::newKeys'
+    _title: 'Generate a new key-pair for the user'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+client_side_file_crypto.postLogin:
   path: '/user/{uid}/addKey'
   defaults:
-    _controller: '\Drupal\client_side_file_crypto\Controller\client_side_file_cryptoController::reloadKeys'
+    _controller: '\Drupal\client_side_file_crypto\Controller\ClientSideFileCryptoController::postFirstLogin'
+    _title: 'page for first post login redirection'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+client_side_file_crypto.reloadKeys:
+  path: '/user/{uid}/reloadKey'
+  defaults:
+    _controller: '\Drupal\client_side_file_crypto\Controller\ClientSideFileCryptoController::reloadKeys'
     _title: 'Reload the private key'
   requirements:
     _permission: 'access content'
+    _user_is_logged_in: 'TRUE'

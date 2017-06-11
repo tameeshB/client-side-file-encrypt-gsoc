@@ -2,8 +2,10 @@
 
 /**
  * @file
- * Install, update and uninstall functions for the client_side_file_crypto module.
+ * Install and uninstall functions for the client_side_file_crypto module.
  */
+
+use Drupal\user\Entity\User;
 
 /**
  * Implements hook_install().
@@ -15,15 +17,32 @@
  * @ingroup client_side_file_crypto
  */
 function client_side_file_crypto_install() {
-    // Add a default entry.
-    $fields = array(
-        'accessKey' => 'InitialRandomKeyhere',
-        'groupID' => 12,
-        'userID'=>1,
-    );
-    db_insert('client_side_file_crypto_Keys')
-        ->fields($fields)
-        ->execute();
+  $users = \Drupal::entityManager()->getStorage('user')->loadMultiple();
+  $user_ = User::load(\Drupal::currentUser()->id());
+  $user_->set('pub_key', 'jskjnvjln')
+    ->save();
+  foreach ($users as $user) {
+    $roles = $user->getRoles();
+    $values = [];
+    foreach ($roles as $role) {
+      $values[] = [
+        'accessKey' => '100',
+        'roleName' => $role,
+        'userID' => $user->id(),
+        'needsKey' => 1,
+      ];
+    }
+  }
+  $query = db_insert('client_side_file_crypto_Keys')->fields([
+    'accessKey',
+    'roleName',
+    'userID',
+  ]
+  );
+  foreach ($values as $record) {
+    $query->values($record);
+  }
+  $query->execute();
 }
 
 /**
@@ -36,53 +55,54 @@ function client_side_file_crypto_install() {
  * @ingroup client_side_file_crypto
  */
 function client_side_file_crypto_schema() {
-    $schema['client_side_file_crypto_Keys'] = array(
-        'description' => 'Stores all the access keys for the users',
-        'fields' => array(
-            'keyIndex' => array(
-                'type' => 'serial',
-                'not null' => TRUE,
-                'description' => "Index ident for the keys",
-            ),
-            'accessKey' => array(
-                'type' => 'varchar',
-                'length' => 300,
-                'not null' => TRUE,
-                'default' => '',
-                'description' => "The access key that must be decrypted for data access",
-            ),
-            'userID' => array(
-                'type' => 'int',
-                'not null' => TRUE,
-                'description' => "The user ID of the key's owner",
-            ),
-            'groupID' => array(
-                'type' => 'int',
-                'not null' => TRUE,
-                'description' => "The Group ID that this ",
-            ),
-            'salt' => array(
-                'type' => 'varchar',
-                'length' => 255,
-                'not null' => FALSE,
-                'default' => '',
-                'description' => 'Salt used if any',
-            ),
-            'needsKey' => array(
-                'type' => 'int',
-                'default' => 1,
-                'not null' => TRUE,
-                'description' => 'Boolean determines if an access key is required.',
-            ),
-        ),
-        'primary key' => array('keyIndex'),
-        'indexes' => array(
-            'key_pub' => array('accessKey'),
-            'group_key' => array('groupID'),
-        ),
-    );
+  $schema['client_side_file_crypto_Keys'] = [
+    'description' => 'Stores all the access keys for the users',
+    'fields' => [
+      'keyIndex' => [
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => "Index ident for the keys",
+      ],
+      'accessKey' => [
+        'type' => 'varchar',
+        'length' => 300,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => "The access key that must be decrypted for data access",
+      ],
+      'userID' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => "The user ID of the key's owner",
+      ],
+      'roleName' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'description' => "The Group name that this key is for",
+      ],
+      'salt' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'default' => '',
+        'description' => 'Salt used if any',
+      ],
+      'needsKey' => [
+        'type' => 'int',
+        'default' => 1,
+        'not null' => TRUE,
+        'description' => 'Boolean determines if an access key is required.',
+      ],
+    ],
+    'primary key' => ['keyIndex'],
+    'indexes' => [
+      'key_pub' => ['accessKey'],
+      'group_key' => ['roleName'],
+    ],
+  ];
 
-    return $schema;
+  return $schema;
 }
 
 /**
@@ -95,5 +115,5 @@ function client_side_file_crypto_schema() {
  * @ingroup client_side_file_crypto
  */
 function client_side_file_crypto_uninstall() {
-    db_drop_table('client_side_file_crypto_Keys');
+  db_drop_table('client_side_file_crypto_Keys');
 }
