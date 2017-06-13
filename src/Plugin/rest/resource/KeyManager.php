@@ -127,8 +127,8 @@ class KeyManager extends ResourceBase {
             }
           }
           if ($needsKey == 1) {
-            $return[]["status"] = 0;
-            $return[]["message"] = "Access key not provided yet.";
+            $return["status"] = 0;
+            $return["message"] = "Access key not provided yet.";
           }
           elseif ($needsKey == 0) {
             $return["status"] = 1;
@@ -217,9 +217,14 @@ class KeyManager extends ResourceBase {
         break;
 
       default:
-        throw new AccessDeniedHttpException();
+        $return = -1;
     }
-    return new ResourceResponse($return);
+    if($return==-1){
+      throw new \Exception("Action not found.");
+    }else{
+      return new ResourceResponse($return);  
+    }
+    
   }
 
   /**
