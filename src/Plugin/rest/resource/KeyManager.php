@@ -9,7 +9,6 @@ use Drupal\rest\ResourceResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Psr\Log\LoggerInterface;
-use Drupal\client_side_file_crypto\moreAPI;
 
 /**
  * Provides a resource to get view modes by entity and bundle.
@@ -110,8 +109,46 @@ class KeyManager extends ResourceBase {
       case 'getPubKey':
         $return = $this->getPubKey($key_param);
         break;
-      //
+
+      case 'getAccessKey':
+        $key = "";
+        $needsKey = 1;
+        $result = [];
+        $curr_user = User::load(\Drupal::currentUser()->id());
+        $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (userID = :uid AND roleName = :roleName )", [':uid' => $curr_user->get('uid')->value, ':roleName' => $key_param]);
+        if ($db_result) {
+          while ($row = $db_result->fetchAssoc()) {
+
+            if ($row['accessKey'] != NULL) {
+              $db_data['key'] = $row['accessKey'];
+              $key = $row['accessKey'];
+              $needsKey = $row['needsKey'];
+              break;
+            }
+          }
+          if ($needsKey == 1) {
+            $return[]["status"] = 0;
+            $return[]["message"] = "Access key not provided yet.";
+          }
+          elseif ($needsKey == 0) {
+            $return["status"] = 1;
+            $return["key"] = $key;
+          }
+          else {
+            throw new \Exception("An error occured.");
+
+          }
+        }
+        else {
+          $return["status"] = -1;
+          $return["message"] = "Error occured.";
+          throw new \Exception("An error occured.");
+        }
+        break;
+
+      // Case for checking if a public key exists for the user.
       case 'checkPubKey':
+        // $curr_user = User::load(\Drupal::currentUser()->id());
         if ($user = User::load($key_param)) {
           $pubKeyAvailable = $user->get('pub_key')->value;
           if ($pubKeyAvailable != NULL || $pubKeyAvailable != "") {
@@ -120,30 +157,32 @@ class KeyManager extends ResourceBase {
           else {
             $return = 0;
           }
-        } else{
-          //case where the userID provided does not exist.
+        }
+        else {
+          // Case where the userID provided does not exist.
           throw new \Exception("An error occured.");
         }
-        
+
         break;
 
       // Case for get an array of all the public keys for pending access keys.
       case 'getPending':
-      $return =[];
-      $curr_user = User::load(\Drupal::currentUser()->id());
-      //array of all the roles of the current user
-      $roles = $curr_user->getRoles();
-       $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (needsKey = :keyval AND roleName in (:roles[]) )", array(':keyval' => 1 , ':roles[]' => $roles));
+        $return = [];
+        $curr_user = User::load(\Drupal::currentUser()->id());
+        // Array of all the roles of the current user.
+        $roles = $curr_user->getRoles();
+        $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (needsKey = :keyval AND roleName in (:roles[]) )", [':keyval' => 1, ':roles[]' => $roles]);
         if ($db_result) {
           while ($row = $db_result->fetchAssoc()) {
-            $return[]=array(
+            $return[] = [
               'index' => $row['keyIndex'],
               'uid' => $row['userID'],
               'role' => $row['roleName'],
               'pub_key' => $this->getPubKey($row['userID']),
-            );
+            ];
           }
-        } else {
+        }
+        else {
           throw new \Exception("An error occured.");
         }
         break;
@@ -151,25 +190,26 @@ class KeyManager extends ResourceBase {
       case 'putPending':
         foreach ($key_param as $key_data) {
           $values[] = [
-            'accessKey' => $key_data['accessKey'];,
+            'accessKey' => $key_data['accessKey'],
             'roleName' => $key_data['roleName'],
             'userID' => $key_data['userID'],
             'needsKey' => 0,
           ];
         }
         $query = db_insert('client_side_file_crypto_Keys')->fields([
-            'accessKey',
-            'roleName',
-            'userID',
+          'accessKey',
+          'roleName',
+          'userID',
         ]
         );
         foreach ($values as $record) {
           $query->values($record);
         }
-        if($query->execute()){
+        if ($query->execute()) {
           $return["status"] = 1;
           $return["message"] = "Successfully added.";
-        }else{
+        }
+        else {
           $return["status"] = -1;
           $return["message"] = "An error occured.";
           throw new \Exception("An error occured.");
@@ -182,14 +222,27 @@ class KeyManager extends ResourceBase {
     return new ResourceResponse($return);
   }
 
-  public function getPubKey($uid = null){
-    if($uid==null) $uid = \Drupal::currentUser()->id();
+  /**
+   * Function to return the Public Key of the parameter user.
+   *
+   * @param int $uid
+   *   is the optional parameter for user's UID
+   *   if the $uid is absent, the public key of the current logged in user
+   *   is returned.
+   *
+   * @return string
+   *   public key.
+   */
+  public function getPubKey($uid = NULL) {
+    if ($uid == NULL) {
+      $uid = \Drupal::currentUser()->id();
+    }
     if ($user = User::load($uid)) {
-          $return = $user->get('pub_key')->value;
-        }
-        else {
-          throw new \Exception("User not found");
-        }
+      $return = $user->get('pub_key')->value;
+    }
+    else {
+      throw new \Exception("User not found");
+    }
     return $return;
   }
 

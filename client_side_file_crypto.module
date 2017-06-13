@@ -52,7 +52,6 @@ function client_side_file_crypto_help($route_name, RouteMatchInterface $route_ma
     case 'help.page.client_side_file_crypto':
       $output = '';
       $output .= '<h2>' . t('Client-side File encryption for implementing a zero-knowledge system') . '</h2>';
-
       $output .= '<h4>' . t('Google Summer of Code Project for Drupal') . '</h4>';
       $output .= '<h4>' . t('Student: Tameesh Biswas (@tameeshb)') . '</h4>';
       $output .= '<h4>' . t('Mentor: Colan Schwartz (@colan)') . '</h4>';
