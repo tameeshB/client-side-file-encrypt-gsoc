@@ -5,32 +5,32 @@
  * Contains client_side_file_crypto.module.
  */
 
+use Drupal\Core\Form\FormState;
 use Drupal\user\Entity\User;
-use Drupal\Core\Form;
 use Drupal\Core\Url;
 
 use Drupal\Core\Routing\RouteMatchInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function client_side_file_crypto_form_user_login_form_alter(&$form, Drupal\Core\Form\FormState $form_state) {
+function client_side_file_crypto_form_user_login_form_alter(&$form, FormState $form_state) {
   $form['#submit'][] = 'client_side_file_crypto_user_login_submit';
 }
 
 /**
  * Form submission handler for user_login_form().
  *
- * Conditional redirect post login handler
+ * Conditional redirect post login handler.
  */
-function client_side_file_crypto_user_login_submit(&$form, Drupal\Core\Form\FormState $form_state) {
+function client_side_file_crypto_user_login_submit(&$form, FormState $form_state) {
   if ($user = User::load(\Drupal::currentUser()->id())) {
     $pubKeyAvailable = $user->get('pub_key')->value;
   }
-  if($pubKeyAvailable != NULL || $pubKeyAvailable != ""){
+  if ($pubKeyAvailable != NULL || $pubKeyAvailable != "") {
     $url = Url::fromRoute('client_side_file_crypto.postLogin');
-  }else{
+  }
+  else {
     $url = Url::fromRoute('client_side_file_crypto.newKeys');
   }
   $request = \Drupal::service('request_stack')->getCurrentRequest();
@@ -52,7 +52,7 @@ function client_side_file_crypto_help($route_name, RouteMatchInterface $route_ma
     case 'help.page.client_side_file_crypto':
       $output = '';
       $output .= '<h2>' . t('Client-side File encryption for implementing a zero-knowledge system') . '</h2>';
-      
+
       $output .= '<h4>' . t('Google Summer of Code Project for Drupal') . '</h4>';
       $output .= '<h4>' . t('Student: Tameesh Biswas (@tameeshb)') . '</h4>';
       $output .= '<h4>' . t('Mentor: Colan Schwartz (@colan)') . '</h4>';

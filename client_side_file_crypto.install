@@ -5,8 +5,6 @@
  * Install and uninstall functions for the client_side_file_crypto module.
  */
 
-use Drupal\user\Entity\User;
-
 /**
  * Implements hook_install().
  *
