@@ -9,6 +9,7 @@ use Drupal\rest\ResourceResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Psr\Log\LoggerInterface;
+use Drupal\client_side_file_crypto\moreAPI;
 
 /**
  * Provides a resource to get view modes by entity and bundle.
@@ -91,7 +92,7 @@ class KeyManager extends ResourceBase {
     }
     switch ($action) {
       // Case to handle registration of the public key.
-      case 'putKey':
+      case 'putPubKey':
         if ($user = User::load(\Drupal::currentUser()->id())) {
           if ($user->set('pub_key', $key_param)->save()) {
             $return = "Done!";
@@ -103,18 +104,46 @@ class KeyManager extends ResourceBase {
         break;
 
       // Case for handling fetcing of a public key.
-      case 'getKey':
+      case 'getPubKey':
+        $return = $this->getPubKey($key_param);
+        break;
+      //
+      case 'checkPubKey':
         if ($user = User::load($key_param)) {
-          $return = $user->get('pub_key')->value;
+          $pubKeyAvailable = $user->get('pub_key')->value;
+          if ($pubKeyAvailable != NULL || $pubKeyAvailable != "") {
+            $return = 1;
+          }
+          else {
+            $return = 0;
+          }
+        } else{
+          //case where the userID provided does not exist.
+          $return = -1;
         }
-        else {
-          throw new \Exception("User not found");
-        }
+        
         break;
 
       // Case for get an array of all the public keys for pending access keys.
       case 'getPending':
-        // Forward to another controller.
+      $return =[];
+      $curr_user = User::load(\Drupal::currentUser()->id());
+      //array of all the roles of the current user
+      $roles = $curr_user->getRoles();
+       $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (needsKey = :keyval AND roleName in (:roles[]) )", array(':keyval' => 1 , ':roles[]' => $roles));
+        if ($db_result) {
+          while ($row = $db_result->fetchAssoc()) {
+            $return[]=array(
+              'index' => $row['keyIndex'],
+              'uid' => $row['userID'],
+              'role' => $row['roleName'],
+              'pub_key' => $this->getPubKey($row['userID']),
+            );
+            
+          }
+        } else {
+          $return = -1;
+        }
         break;
 
       case 'putPending':
@@ -124,6 +153,17 @@ class KeyManager extends ResourceBase {
         throw new AccessDeniedHttpException();
     }
     return new ResourceResponse($return);
+  }
+
+  public function getPubKey($uid = null){
+    if($uid==null) $uid = \Drupal::currentUser()->id();
+    if ($user = User::load($uid)) {
+          $return = $user->get('pub_key')->value;
+        }
+        else {
+          throw new \Exception("User not found");
+        }
+    return $return;
   }
 
 }
