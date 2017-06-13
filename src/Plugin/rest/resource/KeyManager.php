@@ -95,10 +95,13 @@ class KeyManager extends ResourceBase {
       case 'putPubKey':
         if ($user = User::load(\Drupal::currentUser()->id())) {
           if ($user->set('pub_key', $key_param)->save()) {
-            $return = "Done!";
+            $return["status"] = 1;
+            $return["message"] = "Successfully added.";
           }
         }
         else {
+          $return["status"] = -1;
+          $return["message"] = "Error occured.";
           throw new AccessDeniedHttpException();
         }
         break;
@@ -119,7 +122,7 @@ class KeyManager extends ResourceBase {
           }
         } else{
           //case where the userID provided does not exist.
-          $return = -1;
+          throw new \Exception("An error occured.");
         }
         
         break;
@@ -139,14 +142,38 @@ class KeyManager extends ResourceBase {
               'role' => $row['roleName'],
               'pub_key' => $this->getPubKey($row['userID']),
             );
-            
           }
         } else {
-          $return = -1;
+          throw new \Exception("An error occured.");
         }
         break;
 
       case 'putPending':
+        foreach ($key_param as $key_data) {
+          $values[] = [
+            'accessKey' => $key_data['accessKey'];,
+            'roleName' => $key_data['roleName'],
+            'userID' => $key_data['userID'],
+            'needsKey' => 0,
+          ];
+        }
+        $query = db_insert('client_side_file_crypto_Keys')->fields([
+            'accessKey',
+            'roleName',
+            'userID',
+        ]
+        );
+        foreach ($values as $record) {
+          $query->values($record);
+        }
+        if($query->execute()){
+          $return["status"] = 1;
+          $return["message"] = "Successfully added.";
+        }else{
+          $return["status"] = -1;
+          $return["message"] = "An error occured.";
+          throw new \Exception("An error occured.");
+        }
         break;
 
       default:
