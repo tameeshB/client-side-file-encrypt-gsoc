@@ -18,9 +18,6 @@ use Drupal\user\Entity\User;
  */
 function client_side_file_crypto_install() {
   $users = \Drupal::entityManager()->getStorage('user')->loadMultiple();
-  $user_ = User::load(\Drupal::currentUser()->id());
-  $user_->set('pub_key', 'jskjnvjln')
-    ->save();
   foreach ($users as $user) {
     $roles = $user->getRoles();
     $values = [];
