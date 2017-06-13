@@ -87,7 +87,7 @@ class KeyManagerPOST extends ResourceBase {
       throw new AccessDeniedHttpException();
     }
 
-    switch($action){
+    switch ($action) {
       case '':
       default:
         throw new AccessDeniedHttpException();

@@ -219,12 +219,13 @@ class KeyManager extends ResourceBase {
       default:
         $return = -1;
     }
-    if($return==-1){
+    if ($return == -1) {
       throw new \Exception("Action not found.");
-    }else{
-      return new ResourceResponse($return);  
     }
-    
+    else {
+      return new ResourceResponse($return);
+    }
+
   }
 
   /**
