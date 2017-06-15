@@ -14,15 +14,14 @@ use Psr\Log\LoggerInterface;
  * Provides a resource to get view modes by entity and bundle.
  *
  * @RestResource(
- *   id = "public_key",
- *   label = @Translation("Public key"),
+ *   id = "public_key_UID",
+ *   label = @Translation("Public key UID"),
  *   uri_paths = {
- *     "canonical" = "//publicKey",
- *     "https://www.drupal.org/link-relations/create" = "/publicKey"
+ *     "canonical" = "//publicKey/{uid}"
  *   }
  * )
  */
-class PublicKey extends ResourceBase {
+class PublicKeyUID extends ResourceBase {
 
   /**
    * A current user instance.
@@ -32,7 +31,7 @@ class PublicKey extends ResourceBase {
   protected $currentUser;
 
   /**
-   * Constructs a new PublicKey object.
+   * Constructs a new PublicKeyUID object.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
@@ -81,13 +80,12 @@ class PublicKey extends ResourceBase {
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    *   Throws exception expected.
    */
-  public function get() {
+  public function get($uid) {
 
     // Use current user after pass authentication to validate access.
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
-    $uid = \Drupal::currentUser()->id();
     if ($uid) {
       if ($user = User::load($uid)) {
         $return["publicKey"] = $user->get('pub_key')->value;
@@ -98,42 +96,13 @@ class PublicKey extends ResourceBase {
       }
       else {
         // Error loading user.
-        throw new \Exception();
+        throw new \Exception("Error Loading user!");
       }
     }
     else {
       // User not logged in.
       throw new AccessDeniedHttpException();
     }
-  }
-
-  /**
-   * Responds to POST requests.
-   *
-   * Returns a list of bundles for specified entity.
-   *
-   * @throws \Symfony\Component\HttpKernel\Exception\HttpException
-   *   Throws exception expected.
-   */
-  public function post(array $data = []) {
-
-    // Use current user after pass authentication to validate access.
-    if (!$this->currentUser->hasPermission('access content')) {
-      throw new AccessDeniedHttpException();
-    }
-    if ($user = User::load(\Drupal::currentUser()->id())) {
-      // Data validation.
-      if ($user->set('pub_key', $data['publicKey'])->save()) {
-        $return["status"] = 1;
-        $return["message"] = "Successfully added.";
-      }
-    }
-    else {
-      $return["status"] = -1;
-      $return["message"] = "Error occured.";
-      throw new AccessDeniedHttpException();
-    }
-    return new ResourceResponse($return);
   }
 
 }

@@ -14,15 +14,15 @@ use Psr\Log\LoggerInterface;
  * Provides a resource to get view modes by entity and bundle.
  *
  * @RestResource(
- *   id = "public_key",
- *   label = @Translation("Public key"),
+ *   id = "access_key",
+ *   label = @Translation("Access key"),
  *   uri_paths = {
- *     "canonical" = "//publicKey",
- *     "https://www.drupal.org/link-relations/create" = "/publicKey"
+ *     "canonical" = "//accessKey",
+ *     "https://www.drupal.org/link-relations/create" = "/accessKey"
  *   }
  * )
  */
-class PublicKey extends ResourceBase {
+class AccessKey extends ResourceBase {
 
   /**
    * A current user instance.
@@ -32,7 +32,7 @@ class PublicKey extends ResourceBase {
   protected $currentUser;
 
   /**
-   * Constructs a new PublicKey object.
+   * Constructs a new AccessKey object.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
@@ -86,25 +86,40 @@ class PublicKey extends ResourceBase {
     // Use current user after pass authentication to validate access.
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
-    }
-    $uid = \Drupal::currentUser()->id();
-    if ($uid) {
-      if ($user = User::load($uid)) {
-        $return["publicKey"] = $user->get('pub_key')->value;
-        $return["uid"] = $user->get('name')->value;
-        $return["message"] = "Success!";
+    }$key = "";
+    $needsKey = 1;
+    $result = [];
+    $curr_user = User::load(\Drupal::currentUser()->id());
+    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (userID = :uid AND roleName = :roleName )", [':uid' => $curr_user->get('uid')->value, ':roleName' => $data['roleName']]);
+    if ($db_result) {
+      while ($row = $db_result->fetchAssoc()) {
+
+        if ($row['accessKey'] != NULL) {
+          $db_data['key'] = $row['accessKey'];
+          $key = $row['accessKey'];
+          $needsKey = $row['needsKey'];
+          break;
+        }
+      }
+      if ($needsKey == 1) {
+        $return["status"] = 0;
+        $return["message"] = "Access key not provided yet.";
+      }
+      elseif ($needsKey == 0) {
         $return["status"] = 1;
-        return new ResourceResponse($return);
+        $return["key"] = $key;
       }
       else {
-        // Error loading user.
-        throw new \Exception();
+        throw new \Exception("An error occured.");
+
       }
     }
     else {
-      // User not logged in.
-      throw new AccessDeniedHttpException();
+      $return["status"] = -1;
+      $return["message"] = "Error occured.";
+      throw new \Exception("An error occured.");
     }
+    return new ResourceResponse($return);
   }
 
   /**
@@ -123,9 +138,17 @@ class PublicKey extends ResourceBase {
     }
     if ($user = User::load(\Drupal::currentUser()->id())) {
       // Data validation.
-      if ($user->set('pub_key', $data['publicKey'])->save()) {
+      $query = \Drupal::database()->update('client_side_file_crypto_Keys');
+      $query->fields([
+        'accessKey' => $data['accessKey'],
+        'needsKey' => 0,
+      ]);
+      $query->condition('userID', $data['userID']);
+      $query->condition('needsKey', '1');
+      $query->condition('roleName', $data['roleName']);
+      if ($query->execute()) {
         $return["status"] = 1;
-        $return["message"] = "Successfully added.";
+        $return["message"] = "Registered successfully.";
       }
     }
     else {
