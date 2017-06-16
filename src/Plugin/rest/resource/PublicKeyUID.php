@@ -92,17 +92,22 @@ class PublicKeyUID extends ResourceBase {
         $return["uid"] = $user->get('name')->value;
         $return["message"] = "Success!";
         $return["status"] = 1;
-        return new ResourceResponse($return);
+        $status = 200;
       }
       else {
         // Error loading user.
-        throw new \Exception("Error Loading user!");
+        $return["message"] = "Error loading User!";
+        $return["status"] = -1;
+        $status = 400;
       }
     }
     else {
       // User not logged in.
-      throw new AccessDeniedHttpException();
+      $return["message"] = "Unauthenticated access";
+      $return["status"] = -1;
+      $status = 401;
     }
+    return new ResourceResponse($return, $status);
   }
 
 }

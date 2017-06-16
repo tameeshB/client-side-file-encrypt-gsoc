@@ -87,26 +87,39 @@ class AccessKeyPending extends ResourceBase {
       throw new AccessDeniedHttpException();
     }
     $return = [];
+    $pendingKeys = [];
     $curr_user = User::load(\Drupal::currentUser()->id());
     // Array of all the roles of the current user.
     $roles = $curr_user->getRoles();
     $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (needsKey = :keyval AND roleName in (:roles[]) )", [':keyval' => 1, ':roles[]' => $roles]);
-    $return[] = count($db_result);
     if ($db_result) {
       while ($row = $db_result->fetchAssoc()) {
-        $return[] = [
+        $pendingKeys[] = [
           'index' => $row['keyIndex'],
           'uid' => $row['userID'],
           'role' => $row['roleName'],
           'pub_key' => $this->getPubKey($row['userID']),
         ];
       }
+      $return["status"] = 1;
+      $return["message"] = "Pending Access Keys fetched successfully.";
+      $return["keyCount"] = count($pendingKeys);
+      $return["accessKeys"] = $pendingKeys;
+      $status = 200;
+
     }
     else {
-      throw new \Exception("An error occured.");
+      $return["status"] = -1;
+      $return["message"] = "Error fetching keys.";
+      $status = 400;
     }
-    return new ResourceResponse($return);
-
+    if (\Drupal::currentUser()->isAnonymous()) {
+      $return = [];
+      $return["status"] = -1;
+      $return["message"] = "Unauthenticated access.";
+      $status = 404;
+    }
+    return new ResourceResponse($return, $status);
   }
 
   /**

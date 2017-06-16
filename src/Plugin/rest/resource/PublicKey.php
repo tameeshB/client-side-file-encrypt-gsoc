@@ -94,17 +94,22 @@ class PublicKey extends ResourceBase {
         $return["uid"] = $user->get('name')->value;
         $return["message"] = "Success!";
         $return["status"] = 1;
-        return new ResourceResponse($return);
+        $status = 200;
       }
       else {
         // Error loading user.
-        throw new \Exception();
+        $return["message"] = "Error loading user.";
+        $return["status"] = -1;
+        $status = 400;
       }
     }
     else {
       // User not logged in.
-      throw new AccessDeniedHttpException();
+      $return["message"] = "Unauthenticated access.";
+      $return["status"] = -1;
+      $status = 402;
     }
+    return new ResourceResponse($return);
   }
 
   /**
@@ -122,18 +127,24 @@ class PublicKey extends ResourceBase {
       throw new AccessDeniedHttpException();
     }
     if ($user = User::load(\Drupal::currentUser()->id())) {
-      // Data validation.
+      // POST input Data validation.
       if ($user->set('pub_key', $data['publicKey'])->save()) {
         $return["status"] = 1;
         $return["message"] = "Successfully added.";
+        $status = 200;
+      }
+      else {
+        $return["status"] = -1;
+        $return["message"] = "Error occured.";
+        $status = 400;
       }
     }
     else {
       $return["status"] = -1;
-      $return["message"] = "Error occured.";
-      throw new AccessDeniedHttpException();
+      $return["message"] = "Error loading current user.";
+      $status = 400;
     }
-    return new ResourceResponse($return);
+    return new ResourceResponse($return, $status);
   }
 
 }
