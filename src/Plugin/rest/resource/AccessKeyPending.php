@@ -14,15 +14,14 @@ use Psr\Log\LoggerInterface;
  * Provides a resource to get view modes by entity and bundle.
  *
  * @RestResource(
- *   id = "access_key",
- *   label = @Translation("Access key"),
+ *   id = "access_key_pending",
+ *   label = @Translation("Access key pending"),
  *   uri_paths = {
- *     "canonical" = "//accessKey",
- *     "https://www.drupal.org/link-relations/create" = "/accessKey"
+ *     "canonical" = "//accessKey/pending"
  *   }
  * )
  */
-class AccessKey extends ResourceBase {
+class AccessKeyPending extends ResourceBase {
 
   /**
    * A current user instance.
@@ -32,7 +31,7 @@ class AccessKey extends ResourceBase {
   protected $currentUser;
 
   /**
-   * Constructs a new AccessKey object.
+   * Constructs a new AccessKeyPending object.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
@@ -86,77 +85,52 @@ class AccessKey extends ResourceBase {
     // Use current user after pass authentication to validate access.
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
-    }$key = "";
-    $needsKey = 1;
-    $result = [];
+    }
+    $return = [];
     $curr_user = User::load(\Drupal::currentUser()->id());
-    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (userID = :uid AND needsKey = :needsKeyVal)", [':uid' => $curr_user->get('uid')->value, ':needsKeyVal' => 0]);
-    // Db num rows condition.
+    // Array of all the roles of the current user.
+    $roles = $curr_user->getRoles();
+    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (needsKey = :keyval AND roleName in (:roles[]) )", [':keyval' => 1, ':roles[]' => $roles]);
+    $return[] = count($db_result);
     if ($db_result) {
-      $accessKeyIndex = 0;
-      $accessKeys = [];
       while ($row = $db_result->fetchAssoc()) {
-        $accessKeys[$accessKeyIndex]["userID"] = $row["userID"];
-        $accessKeys[$accessKeyIndex]["roleName"] = $row["roleName"];
-        $accessKeys[$accessKeyIndex++]["accessKey"] = $row["accessKey"];
+        $return[] = [
+          'index' => $row['keyIndex'],
+          'uid' => $row['userID'],
+          'role' => $row['roleName'],
+          'pub_key' => $this->getPubKey($row['userID']),
+        ];
       }
-      if (count($accessKeys) > 0) {
-        $return["status"] = 1;
-        $return["message"] = "AccessKey Fetch Complete.";
-        $return["numKeys"] = $accessKeyIndex;
-        $return["accessKeys"] = $accessKeys;
-        $status = 200;
-      }
-      else {
-        $return["status"] = -1;
-        $return["message"] = "Unable to fetch keys";
-        $status = 204;
-      }
-
     }
     else {
-      $return["status"] = -1;
-      $return["message"] = "An error occured.";
-      $status = 400;
+      throw new \Exception("An error occured.");
     }
-    return new ResourceResponse($return, $status);
+    return new ResourceResponse($return);
+
   }
 
   /**
-   * Responds to POST requests.
+   * Function to return the Public Key of the parameter user.
    *
-   * Returns a list of bundles for specified entity.
+   * @param int $uid
+   *   is the optional parameter for user's UID
+   *   if the $uid is absent, the public key of the current logged in user
+   *   is returned.
    *
-   * @throws \Symfony\Component\HttpKernel\Exception\HttpException
-   *   Throws exception expected.
+   * @return string
+   *   public key.
    */
-  public function post(array $data = []) {
-
-    // Use current user after pass authentication to validate access.
-    if (!$this->currentUser->hasPermission('access content')) {
-      throw new AccessDeniedHttpException();
+  public function getPubKey($uid = NULL) {
+    if ($uid == NULL) {
+      $uid = \Drupal::currentUser()->id();
     }
-    if ($user = User::load(\Drupal::currentUser()->id())) {
-      // Data validation.
-      $query = \Drupal::database()->update('client_side_file_crypto_Keys');
-      $query->fields([
-        'accessKey' => $data['accessKey'],
-        'needsKey' => 0,
-      ]);
-      $query->condition('userID', $data['userID']);
-      $query->condition('needsKey', '1');
-      $query->condition('roleName', $data['roleName']);
-      if ($query->execute()) {
-        $return["status"] = 1;
-        $return["message"] = "Registered successfully.";
-      }
+    if ($user = User::load($uid)) {
+      $return = $user->get('pub_key')->value;
     }
     else {
-      $return["status"] = -1;
-      $return["message"] = "Error occured.";
-      throw new AccessDeniedHttpException();
+      throw new \Exception("User not found");
     }
-    return new ResourceResponse($return);
+    return $return;
   }
 
 }
