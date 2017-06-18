@@ -2,6 +2,7 @@
 
 namespace Drupal\client_side_file_crypto\Controller;
 
+use Drupal\user\Entity\User;
 use Drupal\Core\Controller\ControllerBase;
 
 /**
@@ -16,10 +17,28 @@ class ClientSideFileCryptoController extends ControllerBase {
    *   returns the render array for the page to redirect to after.
    */
   public function postFirstLogin() {
-    return [
+    $output = [];
+    $output["heading2"] = [
       '#type' => 'markup',
-      '#markup' => $this->t('Redirection after first login after module install is redirected here.'),
+      '#markup' => t('You have been redirected here post your first login to generate a new asymmetric keypair'),
+      '#attached' => [
+        'library' => [
+          'client_side_file_crypto/csfcPubKeyGen',
+        ],
+      ],
     ];
+
+    $output["status"] = [
+      '#type' => 'markup',
+      '#markup' => "<br><a id='key-status'>" . t('Generating keypair...') . "</a><p id='more-info'></p>",
+      '#attached' => [
+        'library' => [
+          'client_side_file_crypto/csfcPubKeyGen',
+        ],
+      ],
+    ];
+
+    return $output;
   }
 
   /**

@@ -1,16 +1,16 @@
 client_side_file_crypto.newKeys:
   path: '/user/newKey'
   defaults:
-    _controller: '\Drupal\client_side_file_crypto\Controller\ClientSideFileCryptoController::newKeys'
-    _title: 'Generate a new key-pair for the user'
+    _controller: '\Drupal\client_side_file_crypto\Controller\ClientSideFileCryptoController::postFirstLogin'
+    _title: 'Generating a new key-pair'
   requirements:
     _permission: 'access content'
     _user_is_logged_in: 'TRUE'
 client_side_file_crypto.postLogin:
-  path: '/user/addKey'
+  path: '/user/postLogin'
   defaults:
-    _controller: '\Drupal\client_side_file_crypto\Controller\ClientSideFileCryptoController::postFirstLogin'
-    _title: 'page for first post login redirection'
+    _controller: '\Drupal\client_side_file_crypto\Controller\ClientSideFileCryptoController::postLoginCheck'
+    _title: 'Post login page'
   requirements:
     _permission: 'access content'
     _user_is_logged_in: 'TRUE'

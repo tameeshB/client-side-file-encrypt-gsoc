@@ -24,9 +24,9 @@ function client_side_file_crypto_form_user_login_form_alter(&$form, FormState $f
  * Conditional redirect post login handler.
  */
 function client_side_file_crypto_user_login_submit(&$form, FormState $form_state) {
-  if ($user = User::load(\Drupal::currentUser()->id())) {
-    $pubKeyAvailable = $user->get('pub_key')->value;
-  }
+  $uid = \Drupal::currentUser()->id();
+  $user = User::load($uid);
+  $pubKeyAvailable = $user->get('pub_key')->value;
   if ($pubKeyAvailable != NULL || $pubKeyAvailable != "") {
     $url = Url::fromRoute('client_side_file_crypto.postLogin');
   }
