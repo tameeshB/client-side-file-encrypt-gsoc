@@ -91,7 +91,11 @@ class AccessKeyPending extends ResourceBase {
     $curr_user = User::load(\Drupal::currentUser()->id());
     // Array of all the roles of the current user.
     $roles = $curr_user->getRoles();
-    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (needsKey = :keyval AND roleName in (:roles[]) )", [':keyval' => 1, ':roles[]' => $roles]);
+    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (needsKey = :keyval AND roleName in (:roles[]) AND userID <> :uid )", [
+      ':keyval' => 1,
+      ':roles[]' => $roles,
+      ':uid' => $curr_user->get('uid')->value,
+    ]);
     if ($db_result) {
       while ($row = $db_result->fetchAssoc()) {
         $pendingKeys[] = [

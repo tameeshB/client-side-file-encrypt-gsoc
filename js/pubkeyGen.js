@@ -15,6 +15,12 @@
           pom.click();
       }
   }
+  
+  function getCsrfToken() {
+  	$.get( "../rest/session/token", function( data ) {
+  	return data;
+	});
+  }
 
   $(document).ready(function(){
   	//default pubkey size for now = 1024
@@ -28,6 +34,24 @@
     console.log(public_key);
     localStorage.setItem("pubKey",public_key);
     localStorage.setItem("privKey",private_key);
+    var csrf_t = '';
+    $.get( "../rest/session/token", function( csrf_t ) {
+	    var data_ = {
+	    	'publicKey' : public_key,
+	    };
+	    jQuery.ajax({
+	      url: '../publicKey?_format=json',
+	      method: 'POST',
+	      headers: {
+	        'Content-Type': 'application/hal+json',
+	        'X-CSRF-Token': csrf_t,
+	      },
+	      data: JSON.stringify(data_),
+	      success: function (node) {
+	        console.log(node);
+	      }
+	    });
+    });
     $("#key-status").text("Key generated.");
     $("#more-info").text("A private key has been downloaded to your computer that you will need to keep to keep safe in case your browser data gets wiped and to access the encrypted files on other devices. In case you need to restore the keys you can do it at /reloadPrivateKey");
     download('PrivateKey.pem', private_key);

@@ -2,7 +2,6 @@
 
 namespace Drupal\client_side_file_crypto\Controller;
 
-use Drupal\user\Entity\User;
 use Drupal\Core\Controller\ControllerBase;
 
 /**
