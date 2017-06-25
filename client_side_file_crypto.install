@@ -8,7 +8,10 @@
 /**
  * Implements hook_install().
  *
- * Creates some default entries on this module custom table.
+ * This hook will run upon installation of this module and will generate
+ * multiple key requests, one per user per role that they are in.
+ *
+ * written to the database table created in hook_schema().
  *
  * @see hook_install()
  *
@@ -98,17 +101,4 @@ function client_side_file_crypto_schema() {
   ];
 
   return $schema;
-}
-
-/**
- * Implements hook_schema().
- *
- * Defines the database tables used by this module.
- *
- * @see hook_schema()
- *
- * @ingroup client_side_file_crypto
- */
-function client_side_file_crypto_uninstall() {
-  db_drop_table('client_side_file_crypto_Keys');
 }

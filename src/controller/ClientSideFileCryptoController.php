@@ -15,7 +15,7 @@ class ClientSideFileCryptoController extends ControllerBase {
    * @return array
    *   returns the render array for the page to redirect to after.
    */
-  public function postFirstLogin() {
+  public function newKeys() {
     $output = [];
     $output["heading2"] = [
       '#type' => 'markup',
@@ -30,11 +30,6 @@ class ClientSideFileCryptoController extends ControllerBase {
     $output["status"] = [
       '#type' => 'markup',
       '#markup' => "<br><a id='key-status'>" . t('Generating keypair...') . "</a><p id='more-info'></p>",
-      '#attached' => [
-        'library' => [
-          'client_side_file_crypto/csfcPubKeyGen',
-        ],
-      ],
     ];
 
     return $output;
@@ -47,23 +42,17 @@ class ClientSideFileCryptoController extends ControllerBase {
    *   returns the render array for the page to redirect to post login.
    */
   public function postLoginCheck() {
-    return [
+    $output = [];
+    $output['heading1'] = [
       '#type' => 'markup',
-      '#markup' => $this->t('Controller called post every login to check for pending keys'),
+      '#markup' => $this->t('You were redirected to this page to check for any pending key requests.'),
+      '#attached' => [
+        'library' => [
+          'client_side_file_crypto/csfcUpdatePendingKeys',
+        ],
+      ],
     ];
-  }
-
-  /**
-   * Display the markup.
-   *
-   * @return array
-   *   returns the render array for the page to generate new keys.
-   */
-  public function newKeys() {
-    return [
-      '#type' => 'markup',
-      '#markup' => $this->t('Controller for rendering the page handling new key generation.'),
-    ];
+    return $output;
   }
 
   /**

@@ -86,11 +86,15 @@ class AccessKey extends ResourceBase {
     // Use current user after pass authentication to validate access.
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
-    }$key = "";
+    }
+    $key = "";
     $needsKey = 1;
     $result = [];
     $curr_user = User::load(\Drupal::currentUser()->id());
-    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (userID = :uid AND needsKey = :needsKeyVal)", [':uid' => $curr_user->get('uid')->value, ':needsKeyVal' => 0]);
+    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (userID = :uid AND needsKey = :needsKeyVal)", [
+      ':uid' => $curr_user->get('uid')->value,
+      ':needsKeyVal' => 0,
+    ]);
     // Db num rows condition.
     if ($db_result) {
       $accessKeyIndex = 0;
@@ -101,21 +105,18 @@ class AccessKey extends ResourceBase {
         $accessKeys[$accessKeyIndex++]["accessKey"] = $row["accessKey"];
       }
       if (count($accessKeys) > 0) {
-        $return["status"] = 1;
         $return["message"] = "AccessKey Fetch Complete.";
         $return["keyCount"] = $accessKeyIndex;
         $return["accessKeys"] = $accessKeys;
         $status = 200;
       }
       else {
-        $return["status"] = -1;
         $return["message"] = "Unable to fetch keys";
         $status = 204;
       }
 
     }
     else {
-      $return["status"] = -1;
       $return["message"] = "An error occured.";
       $status = 400;
     }
@@ -125,7 +126,7 @@ class AccessKey extends ResourceBase {
   /**
    * Responds to POST requests.
    *
-   * Returns a list of bundles for specified entity.
+   * Registers an Access key against the access key request by a user.
    *
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    *   Throws exception expected.
@@ -147,16 +148,15 @@ class AccessKey extends ResourceBase {
       $query->condition('needsKey', '1');
       $query->condition('roleName', $data['roleName']);
       if ($query->execute()) {
-        $return["status"] = 1;
         $return["message"] = "Registered successfully.";
+        $status = 200;
       }
     }
     else {
-      $return["status"] = -1;
-      $return["message"] = "Error occured.";
-      throw new AccessDeniedHttpException();
+      $return["message"] = "Error loading user.";
+      $status = 400;
     }
-    return new ResourceResponse($return);
+    return new ResourceResponse($return, $status);
   }
 
 }

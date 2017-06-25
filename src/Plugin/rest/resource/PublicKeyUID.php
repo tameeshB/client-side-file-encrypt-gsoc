@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Psr\Log\LoggerInterface;
 
 /**
- * Provides a resource to get view modes by entity and bundle.
+ * Provides public key based on request parameter via GET method.
  *
  * @RestResource(
  *   id = "public_key_UID",
@@ -75,7 +75,8 @@ class PublicKeyUID extends ResourceBase {
   /**
    * Responds to GET requests.
    *
-   * Returns a list of bundles for specified entity.
+   * Returns the JSON object containing public key of any user according to
+   * passed parameter in {uid}.
    *
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    *   Throws exception expected.
@@ -91,20 +92,17 @@ class PublicKeyUID extends ResourceBase {
         $return["publicKey"] = $user->get('pub_key')->value;
         $return["uid"] = $user->get('name')->value;
         $return["message"] = "Success!";
-        $return["status"] = 1;
         $status = 200;
       }
       else {
         // Error loading user.
         $return["message"] = "Error loading User!";
-        $return["status"] = -1;
         $status = 400;
       }
     }
     else {
       // User not logged in.
       $return["message"] = "Unauthenticated access";
-      $return["status"] = -1;
       $status = 401;
     }
     return new ResourceResponse($return, $status);

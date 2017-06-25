@@ -6,10 +6,10 @@ csfcPubKeyGen:
     js/jsencrypt.js: {}
   dependencies:
   - core/jquery
-csfcKeyManager:
+csfcUpdatePendingKeys:
   version: 1.x
   js:
-    js/keyManager.js: {}
+    js/updatePendingKeys.js: {}
     js/sjcl.js: {}
     js/jsencrypt.js: {}
   dependencies:

@@ -91,21 +91,25 @@ class AccessKeyPending extends ResourceBase {
     $curr_user = User::load(\Drupal::currentUser()->id());
     // Array of all the roles of the current user.
     $roles = $curr_user->getRoles();
-    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (needsKey = :keyval AND roleName in (:roles[]) AND userID <> :uid )", [
-      ':keyval' => 1,
+    // AND userID <> :uid needsKey = :keyval AND.
+    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE ( roleName in (:roles[])  )", [
+      // ':keyval' => 1,.
       ':roles[]' => $roles,
-      ':uid' => $curr_user->get('uid')->value,
+      // ':uid' => $curr_user->get('uid')->value,.
     ]);
     if ($db_result) {
       while ($row = $db_result->fetchAssoc()) {
-        $pendingKeys[] = [
-          'index' => $row['keyIndex'],
-          'uid' => $row['userID'],
-          'role' => $row['roleName'],
-          'pub_key' => $this->getPubKey($row['userID']),
-        ];
+        $accessKey = $this->getAccessKey($row['roleName']);
+        if ($accessKey != -1) {
+          $pendingKeys[] = [
+            'index' => $row['keyIndex'],
+            'uid' => $row['userID'],
+            'role' => $row['roleName'],
+            'pub_key' => $this->getPubKey($row['userID']),
+            'access_key' => $accessKey,
+          ];
+        }
       }
-      $return["status"] = 1;
       $return["message"] = "Pending Access Keys fetched successfully.";
       $return["keyCount"] = count($pendingKeys);
       $return["accessKeys"] = $pendingKeys;
@@ -113,13 +117,11 @@ class AccessKeyPending extends ResourceBase {
 
     }
     else {
-      $return["status"] = -1;
       $return["message"] = "Error fetching keys.";
       $status = 400;
     }
-    if (\Drupal::currentUser()->isAnonymous()) {
+    if ($curr_user->isAnonymous()) {
       $return = [];
-      $return["status"] = -1;
       $return["message"] = "Unauthenticated access.";
       $status = 404;
     }
@@ -130,24 +132,45 @@ class AccessKeyPending extends ResourceBase {
    * Function to return the Public Key of the parameter user.
    *
    * @param int $uid
-   *   is the optional parameter for user's UID
-   *   if the $uid is absent, the public key of the current logged in user
+   *   Is the optional parameter for user's UID
+   *   If the $uid is absent, the public key of the current logged in user
    *   is returned.
    *
    * @return string
-   *   public key.
+   *   Public key.
    */
   public function getPubKey($uid = NULL) {
     if ($uid == NULL) {
       $uid = \Drupal::currentUser()->id();
     }
     if ($user = User::load($uid)) {
-      $return = $user->get('pub_key')->value;
+      return $user->get('pub_key')->value;
     }
-    else {
-      throw new \Exception("User not found");
+    throw new \Exception("User not found");
+  }
+
+  /**
+   * Function to return the Access Key of the parameter user.
+   *
+   * @param int $role
+   *   If the $uid is absent, the public key of the current logged in user
+   *   is returned.
+   *
+   * @return string
+   *   Public key.
+   */
+  public function getAccessKey($role) {
+    $accessKeys = -1;
+    $curr_user = User::load(\Drupal::currentUser()->id());
+    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (userID = :uid AND needsKey = :needsKeyVal AND roleName = :roleName)", [
+      ':uid' => $curr_user->get('uid')->value,
+      ':needsKeyVal' => 0,
+      ':roleName' => $role,
+    ]);
+    while ($row = $db_result->fetchAssoc()) {
+      $accessKeys = $row["accessKey"];
     }
-    return $return;
+    return $accessKeys;
   }
 
 }

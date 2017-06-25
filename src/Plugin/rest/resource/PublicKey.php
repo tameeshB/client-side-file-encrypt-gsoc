@@ -87,29 +87,25 @@ class PublicKey extends ResourceBase {
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
-    $uid = \Drupal::currentUser()->id();
-    if ($uid) {
+    if ($uid = \Drupal::currentUser()->id()) {
       if ($user = User::load($uid)) {
         $return["publicKey"] = $user->get('pub_key')->value;
         $return["uid"] = $user->get('name')->value;
         $return["message"] = "Success!";
-        $return["status"] = 1;
         $status = 200;
       }
       else {
         // Error loading user.
         $return["message"] = "Error loading user.";
-        $return["status"] = -1;
         $status = 400;
       }
     }
     else {
       // User not logged in.
       $return["message"] = "Unauthenticated access.";
-      $return["status"] = -1;
       $status = 402;
     }
-    return new ResourceResponse($return);
+    return new ResourceResponse($return, $status);
   }
 
   /**
@@ -129,18 +125,15 @@ class PublicKey extends ResourceBase {
     if ($user = User::load(\Drupal::currentUser()->id())) {
       // POST input Data validation.
       if ($user->set('pub_key', $data['publicKey'])->save()) {
-        $return["status"] = 1;
         $return["message"] = "Successfully added.";
         $status = 200;
       }
       else {
-        $return["status"] = -1;
-        $return["message"] = "Error occured.";
+        $return["message"] = "Error writing to user entity field.";
         $status = 400;
       }
     }
     else {
-      $return["status"] = -1;
       $return["message"] = "Error loading current user.";
       $status = 400;
     }

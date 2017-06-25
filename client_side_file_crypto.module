@@ -8,7 +8,6 @@
 use Drupal\Core\Form\FormState;
 use Drupal\user\Entity\User;
 use Drupal\Core\Url;
-
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
@@ -56,7 +55,9 @@ function client_side_file_crypto_help($route_name, RouteMatchInterface $route_ma
       $output .= '<h4>' . t('Student: Tameesh Biswas (@tameeshb)') . '</h4>';
       $output .= '<h4>' . t('Mentor: Colan Schwartz (@colan)') . '</h4>';
       $output .= '<h4>' . t('Objective') . '</h4>';
-      $output .= '<p>' . t('This project will involve building a complete module for Drupal 8 site to make it a zero-knowledge system using front-end JS encryption so that the users can rely on the site when uploading sensitive files, including images on confidential posts, not having to worry about data being stolen in case the server gets compromised.') . '</p>';
+      $curr_user = User::load(\Drupal::currentUser()->id());
+      var_dump($curr_user->id());
+      $output .= '<p>' . t('This project will involve building a complete module for Drupal 8 site to make it a zero-knowledge system using client-side encryption so that the users can rely on the site when uploading sensitive files, including images on confidential posts, not having to worry about data being stolen in case the server gets compromised.') . '</p>';
       $output .= '<p>' . t('Client side crypto for files for a zero knowledge system') . '</p>';
       return $output;
 
