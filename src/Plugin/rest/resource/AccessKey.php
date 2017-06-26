@@ -4,6 +4,7 @@ namespace Drupal\client_side_file_crypto\Plugin\rest\resource;
 
 use Drupal\user\Entity\User;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\Session\AccountProxy;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -90,9 +91,9 @@ class AccessKey extends ResourceBase {
     $key = "";
     $needsKey = 1;
     $result = [];
-    $curr_user = User::load(\Drupal::currentUser()->id());
+    $current_user = User::load($this->currentUser->id());
     $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (userID = :uid AND needsKey = :needsKeyVal)", [
-      ':uid' => $curr_user->get('uid')->value,
+      ':uid' => $current_user->get('uid')->value,
       ':needsKeyVal' => 0,
     ]);
     // Db num rows condition.
@@ -132,12 +133,13 @@ class AccessKey extends ResourceBase {
    *   Throws exception expected.
    */
   public function post(array $data = []) {
-
+    $status = 404;  
+    $return = [];
     // Use current user after pass authentication to validate access.
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
-    if ($user = User::load(\Drupal::currentUser()->id())) {
+    if ($user = User::load($this->currentUser->id())) {
       // Data validation.
       $query = \Drupal::database()->update('client_side_file_crypto_Keys');
       $query->fields([

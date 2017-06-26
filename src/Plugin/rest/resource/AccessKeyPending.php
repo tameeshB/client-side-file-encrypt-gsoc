@@ -88,14 +88,13 @@ class AccessKeyPending extends ResourceBase {
     }
     $return = [];
     $pendingKeys = [];
-    $curr_user = User::load(\Drupal::currentUser()->id());
+    $current_user = User::load($this->currentUser->id());
     // Array of all the roles of the current user.
-    $roles = $curr_user->getRoles();
-    // AND userID <> :uid needsKey = :keyval AND.
-    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE ( roleName in (:roles[])  )", [
-      // ':keyval' => 1,.
+    $roles = $current_user->getRoles();
+    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE ( roleName in (:roles[]) AND userID <> :uid AND needsKey = :keyval)", [
+      ':keyval' => 1,
       ':roles[]' => $roles,
-      // ':uid' => $curr_user->get('uid')->value,.
+      ':uid' => $current_user->id(),
     ]);
     if ($db_result) {
       while ($row = $db_result->fetchAssoc()) {
@@ -120,7 +119,7 @@ class AccessKeyPending extends ResourceBase {
       $return["message"] = "Error fetching keys.";
       $status = 400;
     }
-    if ($curr_user->isAnonymous()) {
+    if ($current_user->isAnonymous()) {
       $return = [];
       $return["message"] = "Unauthenticated access.";
       $status = 404;
@@ -161,9 +160,9 @@ class AccessKeyPending extends ResourceBase {
    */
   public function getAccessKey($role) {
     $accessKeys = -1;
-    $curr_user = User::load(\Drupal::currentUser()->id());
+    $current_user = User::load(\Drupal::currentUser()->id());
     $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (userID = :uid AND needsKey = :needsKeyVal AND roleName = :roleName)", [
-      ':uid' => $curr_user->get('uid')->value,
+      ':uid' => $current_user->get('uid')->value,
       ':needsKeyVal' => 0,
       ':roleName' => $role,
     ]);

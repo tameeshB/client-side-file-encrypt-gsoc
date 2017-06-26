@@ -87,7 +87,7 @@ class PublicKey extends ResourceBase {
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
-    if ($uid = \Drupal::currentUser()->id()) {
+    if ($uid = $this->currentUser->id()) {
       if ($user = User::load($uid)) {
         $return["publicKey"] = $user->get('pub_key')->value;
         $return["uid"] = $user->get('name')->value;
@@ -122,7 +122,7 @@ class PublicKey extends ResourceBase {
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
-    if ($user = User::load(\Drupal::currentUser()->id())) {
+    if ($user = User::load($this->currentUser->id())) {
       // POST input Data validation.
       if ($user->set('pub_key', $data['publicKey'])->save()) {
         $return["message"] = "Successfully added.";
