@@ -16,12 +16,6 @@
       }
   }
   
-  function getCsrfToken() {
-  	$.get( "../rest/session/token", function( data ) {
-  	return data;
-	});
-  }
-
   $(document).ready(function(){
   	//default pubkey size for now = 1024
     var keySize = parseInt(1024);
@@ -34,7 +28,6 @@
     console.log(public_key);
     localStorage.setItem("pubKey",public_key);
     localStorage.setItem("privKey",private_key);
-    var csrf_t = '';
     $.get( "../rest/session/token", function( csrf_t ) {
 	    var data_ = {
 	    	'publicKey' : public_key,
