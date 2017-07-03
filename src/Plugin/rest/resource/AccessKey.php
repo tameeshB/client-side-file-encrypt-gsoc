@@ -4,7 +4,6 @@ namespace Drupal\client_side_file_crypto\Plugin\rest\resource;
 
 use Drupal\user\Entity\User;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\Core\Session\AccountProxy;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -133,7 +132,7 @@ class AccessKey extends ResourceBase {
    *   Throws exception expected.
    */
   public function post(array $data = []) {
-    $status = 404;  
+    $status = 404;
     $return = [];
     // Use current user after pass authentication to validate access.
     if (!$this->currentUser->hasPermission('access content')) {
