@@ -2,12 +2,16 @@
 (function ($) {
   // Jquery onload function.
   $(document).ready(function(){
+  				var new_accessKey_ = '';
   				$.get( "../publicKey?_format=json", function(pkey) {
   					console.log(pkey['publicKey']);
 	  	    		var encrypt = new JSEncrypt();
 	  			  	encrypt.setPublicKey(pkey['publicKey']);
-	  			  	var new_accessKey_ = encrypt.encrypt("yippie!");
+	  			  	new_accessKey_ = encrypt.encrypt("yippie!");
 	  			  	console.log("ciphertext : " + new_accessKey_ );
+	  			  	decrypt.setPrivateKey(localStorage.getItem("privKey"));
+				  	console.log("clearText:" + decrypt.decrypt(new_accessKey_));
+
   				});
 	  			  	console.log("ciphertext : " + new_accessKey_ );
 
@@ -18,6 +22,7 @@
   	decrypt.setPrivateKey(privkey);
   	console.log("clearText:" + decrypt.decrypt(new_accessKey_));
   	var group_access_key_ = decrypt.decrypt(new_accessKey_);
+  	console.log('reached here!');
     $.get( "../rest/session/token", function(csrf_t) {
 	    $.get( "../accessKey/pending?_format=json", function( pending_keys_json ) {
 	    	pending_keys = pending_keys_json['accessKeys'];

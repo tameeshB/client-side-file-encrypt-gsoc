@@ -94,27 +94,28 @@ class GroupKeys extends ResourceBase {
     // Array of all the roles of the current user.
     $roles = $current_user->getRoles();
     foreach ($roles as $role) {
-    	$db_result = db_query("SELECT COUNT(*) FROM {client_side_file_crypto_Keys} WHERE ( roleName = :role AND needsKey = :keyval)", [
-    	  ':role' => $role,
-    	  ':keyval' => 0,
-    	]);
-	    if ($db_result) {
-	    	while ($row = $db_result->fetchAssoc()) {
-	    		if($row['COUNT(*)']==0){
-	    			$pendingRoles[]=$role;
-	    		}
-	    	}
-	    	
-	    }else{
-	    	$return["message"] = "Error fetching keys.";
-	    	$status = 400;
-	    }
-	    $return["message"] = "Pending Access Keys fetched successfully.";
-	    $status = 200;
-	    $return["keyCount"] = count($pendingRoles);
-	    $return["roleNames"] = $pendingRoles;
+      $db_result = db_query("SELECT COUNT(*) FROM {client_side_file_crypto_Keys} WHERE ( roleName = :role AND needsKey = :keyval)", [
+        ':role' => $role,
+        ':keyval' => 0,
+      ]);
+      if ($db_result) {
+        while ($row = $db_result->fetchAssoc()) {
+          if ($row['COUNT(*)'] == 0) {
+            $pendingRoles[] = $role;
+          }
+        }
+
+      }
+      else {
+        $return["message"] = "Error fetching keys.";
+        $status = 400;
+      }
+      $return["message"] = "Pending Access Keys fetched successfully.";
+      $status = 200;
+      $return["keyCount"] = count($pendingRoles);
+      $return["roleNames"] = $pendingRoles;
     }
-    
+
     if ($current_user->isAnonymous()) {
       $return = [];
       $return["message"] = "Unauthenticated access.";
