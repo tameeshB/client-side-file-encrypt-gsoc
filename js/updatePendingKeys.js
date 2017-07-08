@@ -24,7 +24,6 @@
 								"userID" : accessKey['uid'],
 							};
 							jQuery.ajax({
-											
 							  url: '../accessKey/?_format=json',
 							  method: 'POST',
 							  headers: {

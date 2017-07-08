@@ -113,6 +113,8 @@ class GroupKeys extends ResourceBase {
       $return["message"] = "Pending Access Keys fetched successfully.";
       $status = 200;
       $return["keyCount"] = count($pendingRoles);
+      $return["userID"] = $current_user->id();
+
       $return["roleNames"] = $pendingRoles;
     }
 

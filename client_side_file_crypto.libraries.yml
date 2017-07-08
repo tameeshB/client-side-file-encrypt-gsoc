@@ -12,6 +12,7 @@ csfcUpdatePendingKeys:
     js/updatePendingKeys.js: {}
     js/sjcl.js: {}
     js/jsencrypt.js: {}
+    js/GroupKeys.js: {}
   dependencies:
   - core/jquery
 csfcEncrypt:
