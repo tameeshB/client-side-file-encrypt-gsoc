@@ -6,7 +6,7 @@
 		$.get( "../rest/session/token", function( csrf_t ){
 			$.get( "../publicKey/?_format=json", function( xhr_pub_key ){
 				var encrypt = new JSEncrypt();
-				encrypt.setPublicKey(xhr_pub_key);
+				encrypt.setPublicKey(xhr_pub_key['publicKey']);
 				$.get( "../groupKeys?_format=json", function( pending_roles ){
 					var pending_role_names = pending_roles['roleNames'];
 					pending_role_names.forEach(function(role_name) {
