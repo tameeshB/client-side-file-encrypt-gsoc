@@ -10,7 +10,7 @@
 				$.get( "../groupKeys?_format=json", function( pending_roles ){
 					var pending_role_names = pending_roles['roleNames'];
 					pending_role_names.forEach(function(role_name) {
-						var aes_key = Math.floor(Math.random() * 10000000000000000);
+						var aes_key = CryptoJS.enc.Hex.stringify(CryptoJS.lib.WordArray.random(16));
 						var aes_key_str = aes_key.toString();
 						console.log('pub_key',xhr_pub_key);
 						console.log('aes_key_str',aes_key_str);

@@ -13,6 +13,7 @@ csfcUpdatePendingKeys:
     js/sjcl.js: {}
     js/jsencrypt.js: {}
     js/GroupKeys.js: {}
+    js/cryptojs.js: {}
   dependencies:
   - core/jquery
 csfcEncrypt:
@@ -20,6 +21,7 @@ csfcEncrypt:
   js:
     js/encrypt.js: {}
     js/sjcl.js: {}
+    js/cryptojs.js: {}
     js/jsencrypt.js: {}
   dependencies:
   - core/jquery
@@ -29,5 +31,6 @@ csfcDecrypt:
     js/Decrypt.js: {}
     js/sjcl.js: {}
     js/jsencrypt.js: {}
+    js/cryptojs.js: {}
   dependencies:
   - core/jquery

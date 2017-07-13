@@ -14,3 +14,12 @@ This project will involve building a complete module for Drupal 8 site to make
  sensitive files, including images 
  on confidential posts, not having to worry about data being stolen in case the
   server gets compromised.
+
+## Installation instructions
+
+### The JavaScript libraries 
+
+There are several JS dependencies that this module is dependent upon, these will needed to be downloaded to the /js directory in the module folder. These should be saved from by the name as written below:  
+[sjcl.js](http://bitwiseshiftleft.github.io/sjcl/sjcl.js)  
+[jsencrypt.js](http://travistidwell.com/jsencrypt/bin/jsencrypt.js)  
+[cryptojs.js](https://github.com/brix/crypto-js/blob/develop/src/aes.js)  
