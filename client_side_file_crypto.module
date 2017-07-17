@@ -17,6 +17,14 @@ function client_side_file_crypto_form_user_login_form_alter(&$form, FormState $f
   $form['#submit'][] = 'client_side_file_crypto_user_login_submit';
 }
 
+function client_side_file_crypto_form_node_article_form_alter(&$form, &$form_state, $form_id) {
+  $form['#attached'] = [
+        'library' => [
+          'client_side_file_crypto/csfcEncrypt',
+        ],
+      ];
+}
+
 /**
  * Form submission handler for user_login_form().
  *

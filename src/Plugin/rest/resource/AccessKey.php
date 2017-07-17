@@ -101,9 +101,7 @@ class AccessKey extends ResourceBase {
       $accessKeyIndex = 0;
       $accessKeys = [];
       while ($row = $db_result->fetchAssoc()) {
-        $accessKeys[$accessKeyIndex]["userID"] = $row["userID"];
-        $accessKeys[$accessKeyIndex]["roleName"] = $row["roleName"];
-        $accessKeys[$accessKeyIndex++]["accessKey"] = $row["accessKey"];
+        $accessKeys[$row["roleName"]] = $row["accessKey"];
       }
       if (count($accessKeys) > 0) {
         $return["message"] = "AccessKey Fetch Complete.";
