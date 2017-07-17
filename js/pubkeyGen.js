@@ -16,7 +16,7 @@
   }
   
   function getCsrfToken() {
-    $.get( "../rest/session/token", function( data ) {
+    $.get("../rest/session/token", function(data) {
     return data;
   });
   }
@@ -34,7 +34,7 @@
     localStorage.setItem("pubKey",public_key);
     localStorage.setItem("privKey",private_key);
     var csrf_t = '';
-    $.get( "../rest/session/token", function( csrf_t ) {
+    $.get("../rest/session/token", function(csrf_t) {
       var data_ = {
         'publicKey' : public_key,
       };

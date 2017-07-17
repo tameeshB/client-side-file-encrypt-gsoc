@@ -2,35 +2,35 @@ csfcPubKeyGen:
   version: 1.x
   js:
     js/pubkeyGen.js: {}
-    js/sjcl.js: {}
-    js/jsencrypt.js: {}
+    /libraries/client_side_file_crypto/sjcl.js: {}
+    /libraries/client_side_file_crypto/jsencrypt.js: {}
   dependencies:
   - core/jquery
 csfcUpdatePendingKeys:
   version: 1.x
   js:
     js/updatePendingKeys.js: {}
-    js/sjcl.js: {}
-    js/jsencrypt.js: {}
+    /libraries/client_side_file_crypto/sjcl.js: {}
+    /libraries/client_side_file_crypto/jsencrypt.js: {}
     js/GroupKeys.js: {}
-    js/cryptojs.js: {}
+    /libraries/client_side_file_crypto/cryptojs.js: {}
   dependencies:
   - core/jquery
 csfcEncrypt:
   version: 1.x
   js:
     js/encrypt.js: {}
-    js/sjcl.js: {}
-    js/cryptojs.js: {}
-    js/jsencrypt.js: {}
+    /libraries/client_side_file_crypto/sjcl.js: {}
+    /libraries/client_side_file_crypto/cryptojs.js: {}
+    /libraries/client_side_file_crypto/jsencrypt.js: {}
   dependencies:
   - core/jquery
 csfcDecrypt:
   version: 1.x
   js:
     js/Decrypt.js: {}
-    js/sjcl.js: {}
-    js/jsencrypt.js: {}
-    js/cryptojs.js: {}
+    /libraries/client_side_file_crypto/sjcl.js: {}
+    /libraries/client_side_file_crypto/jsencrypt.js: {}
+    /libraries/client_side_file_crypto/cryptojs.js: {}
   dependencies:
   - core/jquery
