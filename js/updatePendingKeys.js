@@ -3,12 +3,12 @@
   // Jquery onload function.
   $(document).ready(function(){
     ////-----------
-      $.get( "../rest/session/token", function( csrf_t ){
-        $.get( "../publicKey/?_format=json", function( xhr_pub_key ){
+      $.get("../rest/session/token", function(csrf_t){
+        $.get("../publicKey/?_format=json", function(xhr_pub_key){
           var publicKey = xhr_pub_key['publicKey'];
           var privateKey = localStorage.getItem("privKey");
           var encrypt = new JSEncrypt();
-          $.get( "../accessKey/pending?_format=json", function( pending_keys_json ){
+          $.get("../accessKey/pending?_format=json", function(pending_keys_json){
             var decrypt = new JSEncrypt();
             decrypt.setPrivateKey(privateKey);
             pending_keys = pending_keys_json['accessKeys'];
@@ -34,8 +34,8 @@
                 success: function (node) {
                   console.log(node);
                 }
-              }).done(function( data ) {
-                  console.log( data );
+              }).done(function(data) {
+                  console.log(data);
               });
             });
 
