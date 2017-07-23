@@ -29,7 +29,7 @@ function client_side_file_crypto_form_node_article_form_alter(&$form, &$form_sta
   $form['cryptoFields'] = [
     '#type' => 'file',
     '#title' => t('Encrypted file'),
-    '#class' => 'cryptoFields',
+    '#id' => 'cryptoFields',
     '#weight' => 15,
     '#description' => t('Attach your file with sensitive data here.'),
   ];
