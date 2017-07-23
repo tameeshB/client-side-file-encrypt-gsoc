@@ -60,7 +60,7 @@
 	    			    success: function (data, status) {
 	    			    	console.log(data,status);
 	    			    }
-	    			});
+	    			}); 
 	    		}
 	    		console.log(reader.readAsDataURL(file));
 
