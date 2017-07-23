@@ -11,18 +11,18 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Psr\Log\LoggerInterface;
 
 /**
- * Provides a resource to get view modes by entity and bundle.
+ * Provides a resource to get JSON object of all the groups with no access
+ * keys generated yet.
  *
  * @RestResource(
- *   id = "access_key",
- *   label = @Translation("Access key"),
+ *   id = "group_key_pending",
+ *   label = @Translation("Group key pending"),
  *   uri_paths = {
- *     "canonical" = "//accessKey",
- *     "https://www.drupal.org/link-relations/create" = "/accessKey"
+ *     "canonical" = "//groupKeys"
  *   }
  * )
  */
-class AccessKey extends ResourceBase {
+class GroupKeys extends ResourceBase {
 
   /**
    * A current user instance.
@@ -32,7 +32,7 @@ class AccessKey extends ResourceBase {
   protected $currentUser;
 
   /**
-   * Constructs a new AccessKey object.
+   * Constructs a new GroupKeyPending object.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
@@ -76,7 +76,7 @@ class AccessKey extends ResourceBase {
   /**
    * Responds to GET requests.
    *
-   * Returns a list of bundles for specified entity.
+   * Returns a JSON object with roles with no generated access keys.
    *
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    *   Throws exception expected.
@@ -87,73 +87,41 @@ class AccessKey extends ResourceBase {
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
-    $key = "";
-    $needsKey = 1;
-    $result = [];
+    $status = 400;
+    $return = [];
+    $pendingRoles = [];
     $current_user = User::load($this->currentUser->id());
-    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (userID = :uid AND needsKey = :needsKeyVal)", [
-      ':uid' => $current_user->get('uid')->value,
-      ':needsKeyVal' => 0,
-    ]);
-    // Db num rows condition.
-    if ($db_result) {
-      $accessKeyIndex = 0;
-      $accessKeys = [];
-      while ($row = $db_result->fetchAssoc()) {
-        $accessKeys[$row["roleName"]] = $row["accessKey"];
-      }
-      if (count($accessKeys) > 0) {
-        $return["message"] = "AccessKey Fetch Complete.";
-        $return["keyCount"] = $accessKeyIndex;
-        $return["accessKeys"] = $accessKeys;
-        $status = 200;
+    // Array of all the roles of the current user.
+    $roles = $current_user->getRoles();
+    foreach ($roles as $role) {
+      $db_result = db_query("SELECT COUNT(*) FROM {client_side_file_crypto_Keys} WHERE ( roleName = :role AND needsKey = :keyval)", [
+        ':role' => $role,
+        ':keyval' => 1,
+      ]);
+      if ($db_result) {
+        while ($row = $db_result->fetchAssoc()) {
+          if ($row['COUNT(*)'] > 0) {
+            $pendingRoles[] = $role;
+          }
+        }
+
       }
       else {
-        $return["message"] = "Unable to fetch keys";
-        $status = 204;
+        $return["message"] = "Error fetching keys.";
+        $status = 400;
       }
+      $return["message"] = "Pending Access Keys fetched successfully.";
+      $status = 200;
+      $return["keyCount"] = count($pendingRoles);
+      $return["userID"] = $current_user->id();
 
+      $return["roleNames"] = $pendingRoles;
     }
-    else {
-      $return["message"] = "An error occured.";
-      $status = 400;
-    }
-    return new ResourceResponse($return, $status);
-  }
 
-  /**
-   * Responds to POST requests.
-   *
-   * Registers an Access key against the access key request by a user.
-   *
-   * @throws \Symfony\Component\HttpKernel\Exception\HttpException
-   *   Throws exception expected.
-   */
-  public function post(array $data = []) {
-    $status = 404;
-    $return = [];
-    // Use current user after pass authentication to validate access.
-    if (!$this->currentUser->hasPermission('access content')) {
-      throw new AccessDeniedHttpException();
-    }
-    if ($user = User::load($this->currentUser->id())) {
-      // Data validation.
-      $query = \Drupal::database()->update('client_side_file_crypto_Keys');
-      $query->fields([
-        'accessKey' => $data['accessKey'],
-        'needsKey' => 0,
-      ]);
-      $query->condition('userID', $data['userID']);
-      $query->condition('needsKey', '1');
-      $query->condition('roleName', $data['roleName']);
-      if ($query->execute()) {
-        $return["message"] = "Registered successfully.";
-        $status = 200;
-      }
-    }
-    else {
-      $return["message"] = "Error loading user.";
-      $status = 400;
+    if ($current_user->isAnonymous()) {
+      $return = [];
+      $return["message"] = "Unauthenticated access.";
+      $status = 401;
     }
     return new ResourceResponse($return, $status);
   }
