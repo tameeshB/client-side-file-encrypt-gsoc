@@ -20,6 +20,7 @@ csfcEncrypt:
   version: 1.x
   js:
     js/encrypt.js: {}
+    js/decrypt.js: {}
     /libraries/client_side_file_crypto/sjcl.js: {}
     /libraries/client_side_file_crypto/cryptojs.js: {}
     /libraries/client_side_file_crypto/jsencrypt.js: {}
@@ -28,7 +29,7 @@ csfcEncrypt:
 csfcDecrypt:
   version: 1.x
   js:
-    js/Decrypt.js: {}
+    js/decrypt.js: {}
     /libraries/client_side_file_crypto/sjcl.js: {}
     /libraries/client_side_file_crypto/jsencrypt.js: {}
     /libraries/client_side_file_crypto/cryptojs.js: {}

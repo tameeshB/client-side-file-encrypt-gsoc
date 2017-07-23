@@ -34,6 +34,14 @@ function client_side_file_crypto_form_node_article_form_alter(&$form, &$form_sta
     '#description' => t('Attach your file with sensitive data here.'),
   ];
 
+  $form['decryptFields'] = [
+    '#type' => 'file',
+    '#title' => t('Decrypt file'),
+    '#id' => 'decryptFields',
+    '#weight' => 15,
+    '#description' => t('Attach your file with sensitive data here.'),
+  ];
+
 }
 
 /**
