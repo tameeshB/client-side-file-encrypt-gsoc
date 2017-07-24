@@ -2,7 +2,7 @@
 (function ($) {
 	function download(filename, text) {
 	    var pom = document.createElement('a');
-	    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+	    pom.setAttribute('href', 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(text));
 	    pom.setAttribute('download', filename);
 
 	    if (document.createEvent) {
@@ -78,10 +78,13 @@
 	    			var decrypted = CryptoJS.AES.decrypt(event_.target.result, group_access_key).toString(CryptoJS.enc.Latin1); 
 	    			// var encrypted = CryptoJS.AES.encrypt(event_.target.result, group_access_key); 
 	    			console.log("clearText: ",decrypted);
-	    			// var file = dataURLtoFile(decrypted, file_name);
 	    			setBase64ToImage(decrypted);
+	    			var img = document.getElementById("previewImg");
+	    			var url = img.src.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+	    			window.open(url);
+	    			// var file = dataURLtoFile(decrypted, file_name);
 	    			// console.log(file);
-	    			// download(file_name,file);
+	    			// download(file_name,url);
 
 	    		}
 	    		console.log(reader.readAsText(file));
