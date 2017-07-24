@@ -81,7 +81,13 @@
 	    			setBase64ToImage(decrypted);
 	    			var img = document.getElementById("previewImg");
 	    			var url = img.src.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
-	    			window.open(url);
+	    			var downloadLink = document.createElement("a");
+	    			downloadLink.href = url;
+	    			downloadLink.download = file_name;
+	    			document.body.appendChild(downloadLink);
+	    			downloadLink.click();
+	    			document.body.removeChild(downloadLink);
+	    			// window.open(url);
 	    			// var file = dataURLtoFile(decrypted, file_name);
 	    			// console.log(file);
 	    			// download(file_name,url);
