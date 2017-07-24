@@ -61,7 +61,9 @@
   		console.log(file.size);
   		console.log(file.name);
   		var file_name =  file.name.slice(10);
+  		var fileMIMEtype = file.type;
   		console.log("fileName:",file_name);
+  		console.log("MIME:",fileMIMEtype);
 	    $.get("../../rest/session/token", function(csrf_t){
 	      $.get("../../accessKey/?_format=json", function(xhr_access_key){
 	    		var privateKey = localStorage.getItem("privKey");
@@ -79,10 +81,13 @@
 	    			// var encrypted = CryptoJS.AES.encrypt(event_.target.result, group_access_key); 
 	    			console.log("clearText: ",decrypted);
 	    			setBase64ToImage(decrypted);
-	    			var img = document.getElementById("previewImg");
-	    			var url = img.src.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+	    			if(fileMIMEtype.includes("image")){
+		    			var img = document.getElementById("previewImg");
+		    			var url = img.src.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+	    			}
+	    			var href = decrypted.replace('data:' + fileMIMEtype, 'data:application/octet-stream');
 	    			var downloadLink = document.createElement("a");
-	    			downloadLink.href = url;
+	    			downloadLink.href = (fileMIMEtype.includes("image"))?url:href;
 	    			downloadLink.download = file_name;
 	    			document.body.appendChild(downloadLink);
 	    			downloadLink.click();
@@ -93,7 +98,7 @@
 	    			// download(file_name,url);
 
 	    		}
-	    		console.log(reader.readAsText(file));
+	    		reader.readAsText(file);
 	    		// var decrypted = CryptoJS.AES.decrypt(encrypted, group_access_key).toString(CryptoJS.enc.Latin1); 
 	    		// console.log("cipherText: ",decrypted);
 	    	});
