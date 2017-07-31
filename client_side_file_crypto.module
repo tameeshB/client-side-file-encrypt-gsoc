@@ -21,7 +21,7 @@ function client_side_file_crypto_preprocess_node(&$variables) {
   $node = $variables['node'];
   //check content type
   // if ($node->getType() == 'article') {
-    $variables['#attached']['library'][] = 'client_side_file_crypto/test1'; 
+    $variables['#attached']['library'][] = 'client_side_file_crypto/csfcDecrypt'; 
   // }
 }
 
