@@ -34,3 +34,9 @@ csfcDecrypt:
     /libraries/client_side_file_crypto/cryptojs.js: {}
   dependencies:
   - core/jquery
+test1:
+  version: 1.x
+  js:
+    js/test.js: {}
+  dependencies:
+  - core/jquery

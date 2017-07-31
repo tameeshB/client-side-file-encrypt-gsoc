@@ -13,10 +13,10 @@
   		var fileMIMEtype = file.type;
   		console.log("fileName:",file_name);
   		console.log("MIME:",fileMIMEtype);
-	    $.get("../../rest/session/token", function(csrf_t){
+	    $.get("../../rest/session/token", function(csrfToken){
 	      $.get("../../accessKey/?_format=json", function(xhr_access_key){
 	    		var privateKey = localStorage.getItem("privKey");
-	    		console.log("csrf",csrf_t);
+	    		console.log("csrf",csrfToken);
 	    		console.log("accessKey",xhr_access_key);
 	    		console.log("privKey",privateKey);
 	    		var decrypt = new JSEncrypt();
