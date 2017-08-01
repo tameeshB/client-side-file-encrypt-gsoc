@@ -9,6 +9,7 @@ use Drupal\Core\Form\FormState;
 use Drupal\user\Entity\User;
 use Drupal\Core\Url;
 use Drupal\Core\Routing\RouteMatchInterface;
+    use \Drupal\node\Entity\Node;
 
 /**
  * Implements hook_form_FORM_ID_alter().
@@ -19,10 +20,7 @@ function client_side_file_crypto_form_user_login_form_alter(&$form, FormState $f
 
 function client_side_file_crypto_preprocess_node(&$variables) {
   $node = $variables['node'];
-  //check content type
-  // if ($node->getType() == 'article') {
-    $variables['#attached']['library'][] = 'client_side_file_crypto/csfcDecrypt'; 
-  // }
+  $variables['#attached']['library'][] = 'client_side_file_crypto/csfcDecrypt'; 
 }
 
 /**
@@ -57,6 +55,21 @@ function client_side_file_crypto_help($route_name, RouteMatchInterface $route_ma
   switch ($route_name) {
     // Main module help for the client_side_file_crypto module.
     case 'help.page.client_side_file_crypto':
+
+    // Create file object from remote URL.
+    $data = file_get_contents('https://tameesh.in/logs.txt');
+    $file = file_save_data($data, 'public://tameesh.txt', FILE_EXISTS_REPLACE);
+     
+    // Create node object with attached file.
+    $node = Node::create([
+      'type'        => 'article',
+      'title'       => 'Druplicon test',
+      'field_file' => [
+        'target_id' => $file->id(),
+      ],
+    ]);
+    $node->save();
+
       $output = '';
       $output .= '<h2>' . t('Client-side File encryption for implementing a zero-knowledge system') . '</h2>';
       $output .= '<h4>' . t('Google Summer of Code Project for Drupal') . '</h4>';

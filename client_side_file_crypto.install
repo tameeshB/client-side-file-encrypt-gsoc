@@ -100,5 +100,43 @@ function client_side_file_crypto_schema() {
     ],
   ];
 
+  $schema['client_side_file_crypto_files'] = [
+    'description' => 'Stores all metadata for encrypted files',
+    'fields' => [
+      'fileIndex' => [
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => "Index for the file metadata",
+      ],
+      'fileName' => [
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => TRUE,
+        'description' => "file name before encryption",
+      ],
+      'nodeID' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => "node ID of the node where the file is attached",
+      ],
+      'roleName' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'description' => "role name for which the file is encrypted",
+      ],
+      'pathToFile' => [
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => TRUE,
+        'description' => "role name for which the file is encrypted",
+      ],
+    ],
+    'primary key' => ['fileIndex'],
+    'indexes' => [
+      'file_name' => ['fileName'],
+      'group_key' => ['roleName'],
+    ],
+  ];
   return $schema;
 }
