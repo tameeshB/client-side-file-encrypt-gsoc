@@ -1,9 +1,14 @@
 // Jquery wrapper for drupal to avoid conflicts between libraries.
 (function ($) {
   // Jquery onload function.
+  function getCsrfToken() {
+  	$.get("../../rest/session/token", function(csrfToken){
+  		return csrfToken;
+  	});
+  }
   var file = null;
   $(document).ready(function(){
-  	$("#decryptFields").change(function(e){
+  	// $("#decryptFields").click(function(e){
   		e.preventDefault();
   		//currently only for first file field in DOM, later add a forEach loop
   		file = e.target.files[0];
@@ -16,7 +21,7 @@
 	    $.get("../../rest/session/token", function(csrfToken){
 	      $.get("../../accessKey/?_format=json", function(xhr_access_key){
 	    		var privateKey = localStorage.getItem("privKey");
-	    		console.log("csrf",csrfToken);
+	    		console.log("csrf",getCsrfToken());
 	    		console.log("accessKey",xhr_access_key);
 	    		console.log("privKey",privateKey);
 	    		var decrypt = new JSEncrypt();
@@ -46,7 +51,7 @@
 	    		
 	    	});
 	    });
-	  });
+	  // });
   });
 })(jQuery); 
 
