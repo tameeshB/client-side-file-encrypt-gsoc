@@ -86,7 +86,7 @@ class FileMetaData extends ResourceBase {
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
-    //check if user has access to view $nodeID
+    // Check if user has access to view $nodeID.
     $key = "";
     $needsKey = 1;
     $result = [];
