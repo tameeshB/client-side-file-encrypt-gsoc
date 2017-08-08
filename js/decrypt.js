@@ -6,11 +6,35 @@
   		return csrfToken;
   	});
   }
+  
   var file = null;
   $(document).ready(function(){
-  	// $("#decryptFields").click(function(e){
+  	// $(".csfc-file-field").click(function(){
+  	// 	console.log("this");
+  	// 	alert($(this).attr('csfc-file-path'));
+  	// });
+  	$("#fileField,a").click(function(event_){
+  		event_.preventDefault();
+  		console.log("this");
+  		// alert($(this).attr('csfc-file-path'));
+  	});
+  	var nodeID = document.querySelector("link[rel='shortlink']").getAttribute("href").split('/')[2];
+  	console.log("nodeID:",nodeID);
+  	//fetching the file list and appending to the DOM
+    $.get("../fileMetadata/"+nodeID+"/?_format=json", function(fileMetaData){
+    	console.log(fileMetaData);
+    	if(fileMetaData.fileCount!=0){
+    		$(".node__content div[property='schema:text']").append("<h3 class='title'>Encrypted Files</h3>");
+    		var files = fileMetaData.files;
+    		files.forEach(function(fileData){
+    			$(".node__content div[property='schema:text']").append("<a class='csfc-file-field' id='fileField' csfc-file-path='"+fileData.path+"'>"+fileData.name+"</a><br>");
+    		});
+    	}
+    });
+  	$("#decryptFields").click(function(e){
+  		// append all to list
   		e.preventDefault();
-  		//currently only for first file field in DOM, later add a forEach loop
+  		// currently only for first file field in DOM, later add a forEach loop
   		file = e.target.files[0];
   		console.log(file.size);
   		console.log(file.name);
@@ -51,7 +75,7 @@
 	    		
 	    	});
 	    });
-	  // });
+	  });
   });
 })(jQuery); 
 

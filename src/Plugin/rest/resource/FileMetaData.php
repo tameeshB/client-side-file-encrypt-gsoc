@@ -93,18 +93,18 @@ class FileMetaData extends ResourceBase {
     $current_user = User::load($this->currentUser->id());
     // Array of all the roles of the current user.
     $roles = $current_user->getRoles();
-    $db_result = db_query("SELECT * FROM {client_side_file_crypto_files} WHERE (nodeID = :nodeID roleName in (:roles[]))", [
+    $db_result = db_query("SELECT * FROM {client_side_file_crypto_files} WHERE (nodeID = :nodeID AND roleName in (:roles[]))", [
       ':nodeID' => $nodeID,
       ':roles[]' => $roles,
-    ]);
+    ]);//insert into client_side_file_crypto_files(`fileName`,`nodeID`,`roleName`,`pathToFile`) values ('Test File','1','authenticated','https://avatars1.githubusercontent.com/u/20886076?v=4&s=460')
     // Db num rows condition.
     if ($db_result) {
       $fileIndex = 0;
       $files = [];
       while ($row = $db_result->fetchAssoc()) {
-        $files[$fileIndex]["userID"] = $row["userID"];
+        $files[$fileIndex]["name"] = $row["fileName"];
         $files[$fileIndex]["roleName"] = $row["roleName"];
-        $files[$fileIndex++]["accessKey"] = $row["accessKey"];
+        $files[$fileIndex++]["path"] = $row["pathToFile"];
       }
       if (count($files) > 0) {
         $return["message"] = "AccessKey Fetch Complete.";
