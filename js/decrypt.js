@@ -13,6 +13,11 @@
   	//get the nodeID for the REST request
   	var nodeID = document.querySelector("link[rel='shortlink']").getAttribute("href").split('/')[2];
   	console.log("nodeID:",nodeID);
+  	function dynamicEvent() {
+  		alert(this.getAttribute('csfc-file-path'));
+  		// this.innerHTML = 'Dynamic event success.';
+  		// this.className += ' dynamic-success';
+  	}
 
   	//fetching the file list and appending to the DOM
     $.get("../fileMetadata/"+nodeID+"/?_format=json", function(fileMetaData){
@@ -21,7 +26,18 @@
     		$(".node__content div[property='schema:text']").append("<h3 class='title'>Encrypted Files</h3>");
     		var files = fileMetaData.files;
     		files.forEach(function(fileData){
-    			$(".node__content div[property='schema:text']").append("<a class='csfc-file-field' id='fileField' csfc-file-path='"+fileData.path+"'>"+fileData.name+"</a><br>");
+    			//get the file name
+    			var dynamicValue = fileData.name;
+    			//create an anchor element
+    			var anc = document.createElement('a');
+    			anc.className = 'csfc-file-field';
+    			anc.innerHTML = dynamicValue;
+    			anc.setAttribute("csfc-file-path", fileData.path);
+    			$(".node__content div[property='schema:text']").append(anc);
+    			//binding the function to the onclick event of the dynamically
+    			// generated elements
+    			anc.onclick = dynamicEvent;
+    			$(".node__content div[property='schema:text']").append("<br>");
     		});
     	}
     });
