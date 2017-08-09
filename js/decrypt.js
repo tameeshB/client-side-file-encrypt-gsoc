@@ -46,26 +46,25 @@
   	function getFile() {
   		console.log("Getting this file this file: ",this.getAttribute('csfc-file-path'));
   		var chipertextFileContent = getFileAsText(this.getAttribute('csfc-file-path'));
-			e.preventDefault();
-			var file_name =  file.name.slice(10);
-			var fileMIMEtype = file.type;
-			console.log("fileName:",file_name);
+			var fileName =  this.innerHTML;
+			var fileMIMEtype = this.getAttribute('csfc-file-MIME-type');
+			var roleName = this.getAttribute('csfc-file-role');
+			console.log("fileName:",fileName);
 			console.log("MIME:",fileMIMEtype);
+			var privateKey = localStorage.getItem("privKey");
+			var decrypt = new JSEncrypt();
+	  	decrypt.setPrivateKey(privateKey);
 	    $.get("../../accessKey/?_format=json", function(xhr_access_key){
-	  		var privateKey = localStorage.getItem("privKey");
-	  		var decrypt = new JSEncrypt();
-	  		decrypt.setPrivateKey(privateKey);
 	  		//currently for testing, using only one role, will later add a dropdown or something for this.
 	  		var group_access_key = decrypt.decrypt(xhr_access_key['accessKeys']['administrator']);
 	  		console.log("symmetric Key:",group_access_key);
 	  		var reader = new FileReader();
 	  		reader.onload = function(event_){
-	  			var decrypted = CryptoJS.AES.decrypt(event_.target.result, group_access_key).toString(CryptoJS.enc.Latin1); 
+	  			var decrypted = CryptoJS.AES.decrypt(chipertextFileContent, group_access_key).toString(CryptoJS.enc.Latin1); 
 	  			console.log("clearText: ",decrypted);
-	  			downloadBlob(decrypted,file_name,fileMIMEtype);
+	  			downloadBlob(decrypted,fileName,fileMIMEtype);
 	  		}
 	  		reader.readAsText(file);
-	  		
 	  	});
   	}
 
@@ -108,6 +107,7 @@
     			anc.setAttribute("alt","Download File");
     			anc.setAttribute("csfc-file-path", fileData.path);
     			anc.setAttribute("csfc-file-ID", fileData.fileID);
+    			anc.setAttribute("csfc-file-role", fileData.roleName);
     			anc.setAttribute("csfc-file-MIME-type", fileData.MIMEtype);
     			anc.setAttribute("csfc-file-isImage", fileData.isImage);
     			encryptedFileList.append(anc);
@@ -122,37 +122,6 @@
     		});
     	}
     });
-
-    /**
-     * 
-     */
-  	$("#decryptFields").click(function(e){
-  		// append all to list
-  		e.preventDefault();
-  		file = e.target.files[0];
-  		console.log(file.size);
-  		console.log(file.name);
-  		var file_name =  file.name.slice(10);
-  		var fileMIMEtype = file.type;
-  		console.log("fileName:",file_name);
-  		console.log("MIME:",fileMIMEtype);
-      $.get("../../accessKey/?_format=json", function(xhr_access_key){
-    		var privateKey = localStorage.getItem("privKey");
-    		var decrypt = new JSEncrypt();
-    		decrypt.setPrivateKey(privateKey);
-    		//currently for testing, using only one role, will later add a dropdown or something for this.
-    		var group_access_key = decrypt.decrypt(xhr_access_key['accessKeys']['administrator']);
-    		console.log("symmetric Key:",group_access_key);
-    		var reader = new FileReader();
-    		reader.onload = function(event_){
-    			var decrypted = CryptoJS.AES.decrypt(event_.target.result, group_access_key).toString(CryptoJS.enc.Latin1); 
-    			console.log("clearText: ",decrypted);
-    			downloadBlob(decrypted,file_name,fileMIMEtype);
-    		}
-    		reader.readAsText(file);
-    		
-    	});
-	  });
   });
 })(jQuery); 
 
