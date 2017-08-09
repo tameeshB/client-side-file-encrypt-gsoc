@@ -96,7 +96,8 @@ class FileMetaData extends ResourceBase {
     $db_result = db_query("SELECT * FROM {client_side_file_crypto_files} WHERE (nodeID = :nodeID AND roleName in (:roles[]))", [
       ':nodeID' => $nodeID,
       ':roles[]' => $roles,
-    ]);//insert into client_side_file_crypto_files(`fileName`,`nodeID`,`roleName`,`pathToFile`) values ('Test File','1','authenticated','https://avatars1.githubusercontent.com/u/20886076?v=4&s=460')
+    // Insert into client_side_file_crypto_files(`fileName`,`nodeID`,`roleName`,`pathToFile`) values ('Test File','1','authenticated','https://avatars1.githubusercontent.com/u/20886076?v=4&s=460')
+    ]);
     // Db num rows condition.
     if ($db_result) {
       $fileIndex = 0;

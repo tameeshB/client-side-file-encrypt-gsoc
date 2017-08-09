@@ -9,7 +9,6 @@ use Drupal\Core\Form\FormState;
 use Drupal\user\Entity\User;
 use Drupal\Core\Url;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\node\Entity\Node;
 
 /**
  * Implements hook_form_FORM_ID_alter().
@@ -18,8 +17,8 @@ function client_side_file_crypto_form_user_login_form_alter(&$form, FormState $f
   $form['#submit'][] = 'client_side_file_crypto_user_login_submit';
 }
 
-/** 
- * Node preprocess hook, adds the decryption library to the 
+/**
+ * Node preprocess hook, adds the decryption library to the .
  */
 function client_side_file_crypto_preprocess_node(&$variables) {
   $node = $variables['node'];
