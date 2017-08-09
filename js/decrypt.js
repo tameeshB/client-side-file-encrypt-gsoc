@@ -9,17 +9,11 @@
   
   var file = null;
   $(document).ready(function(){
-  	// $(".csfc-file-field").click(function(){
-  	// 	console.log("this");
-  	// 	alert($(this).attr('csfc-file-path'));
-  	// });
-  	$("#fileField,a").click(function(event_){
-  		event_.preventDefault();
-  		console.log("this");
-  		// alert($(this).attr('csfc-file-path'));
-  	});
+  	
+  	//get the nodeID for the REST request
   	var nodeID = document.querySelector("link[rel='shortlink']").getAttribute("href").split('/')[2];
   	console.log("nodeID:",nodeID);
+
   	//fetching the file list and appending to the DOM
     $.get("../fileMetadata/"+nodeID+"/?_format=json", function(fileMetaData){
     	console.log(fileMetaData);
@@ -31,6 +25,25 @@
     		});
     	}
     });
+
+    /**
+    	* Section responsible for on click event handling and triggering of the 
+      * decryption and download functions
+      */
+    $("a").click(function(event_){//for testing
+  		event_.preventDefault();
+  		//get file contents from url
+  		
+  	});
+
+    // $(".csfc-file-field").click(function(){
+    // 	console.log("this");
+    // 	alert($(this).attr('csfc-file-path'));
+    // });
+    
+    /**
+     * 
+     */
   	$("#decryptFields").click(function(e){
   		// append all to list
   		e.preventDefault();
@@ -45,9 +58,9 @@
 	    $.get("../../rest/session/token", function(csrfToken){
 	      $.get("../../accessKey/?_format=json", function(xhr_access_key){
 	    		var privateKey = localStorage.getItem("privKey");
-	    		console.log("csrf",getCsrfToken());
-	    		console.log("accessKey",xhr_access_key);
-	    		console.log("privKey",privateKey);
+	    		// console.log("csrf",getCsrfToken());
+	    		// console.log("accessKey",xhr_access_key);
+	    		// console.log("privKey",privateKey);
 	    		var decrypt = new JSEncrypt();
 	    		decrypt.setPrivateKey(privateKey);
 	    		//currently for testing, using only one role, will later add a dropdown or something for this.
