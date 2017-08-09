@@ -103,7 +103,10 @@ class FileMetaData extends ResourceBase {
       $files = [];
       while ($row = $db_result->fetchAssoc()) {
         $files[$fileIndex]["name"] = $row["fileName"];
+        $files[$fileIndex]["fileIndex"] = $row["fileID"];
         $files[$fileIndex]["roleName"] = $row["roleName"];
+        $files[$fileIndex]["MIMEtype"] = $row["MIMEtype"];
+        $files[$fileIndex]["isImage"] = $row["isImage"];
         $files[$fileIndex++]["path"] = $row["pathToFile"];
       }
       if (count($files) > 0) {

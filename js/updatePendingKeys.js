@@ -13,7 +13,7 @@
            async: false
          }).responseText;
     }
-    
+
     $.get("../publicKey/?_format=json", function(xhr_pub_key){
       var publicKey = xhr_pub_key['publicKey'];
       var privateKey = localStorage.getItem("privKey");
@@ -26,13 +26,16 @@
           var group_access_key = decrypt.decrypt(accessKey['access_key']);
           encrypt.setPublicKey(accessKey['pub_key']);
           var new_access_key = encrypt.encrypt(group_access_key);
+          //for testing
           console.log(group_access_key);
           console.log(new_access_key);
+          //JSON content to send
           var json_body = {
             "accessKey" : new_access_key,
             "roleName" : accessKey['role'],
             "userID" : accessKey['uid'],
           };
+          //AJAX XHR
           jQuery.ajax({
             url: '../accessKey/?_format=json',
             method: 'POST',
@@ -48,7 +51,6 @@
               console.log(data);
           });
         });
-
       });
     });
   });
