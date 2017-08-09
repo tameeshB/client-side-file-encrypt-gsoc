@@ -1,25 +1,74 @@
 // Jquery wrapper for drupal to avoid conflicts between libraries.
 (function ($) {
   // Jquery onload function.
-  function getCsrfToken() {
-  	$.get("../../rest/session/token", function(csrfToken){
-  		return csrfToken;
-  	});
-  }
+  
   
   var file = null;
   $(document).ready(function(){
   	
-  	//get the nodeID for the REST request
-  	var nodeID = document.querySelector("link[rel='shortlink']").getAttribute("href").split('/')[2];
-  	console.log("nodeID:",nodeID);
-  	function dynamicEvent() {
-  		alert(this.getAttribute('csfc-file-path'));
-  		// this.innerHTML = 'Dynamic event success.';
-  		// this.className += ' dynamic-success';
+  	/**
+		 * Method to return the csrf token
+  	 */
+  	function getCsrfToken() {
+  		$.get("../../rest/session/token", function(csrfToken){
+  			return csrfToken;
+  		});
   	}
 
-  	//fetching the file list and appending to the DOM
+  	/**
+		 * Method get file contents from url parameter
+  	 */
+		function getFileAsText(fileUrl){
+		    // read text from URL location
+		  $.ajax({
+		    url: fileUrl,
+		    type: 'get',
+		    async: false,
+		    success: function(contents) {
+		      console.log(contents); /* only for testing */
+		      return(contents);
+		    }
+		  });
+		}	
+
+  	/**
+		 * Get the current node ID for the REST request.
+  	 */
+  	var nodeID = document.querySelector("link[rel='shortlink']").getAttribute("href").split('/')[2];
+  	console.log("nodeID:",nodeID);
+
+  	/**
+  	 * Function to get triggered onclick of the dynamically generated anchors
+  	 */
+  	function getFile() {
+  		console.log("Getting this file this file: ",this.getAttribute('csfc-file-path'));
+  		getFileAsText(this.getAttribute('csfc-file-path'));
+  		
+  	}
+
+  	/**
+  	 * File taking in plaintext file parameters and generating and downloading
+  	 * the file.
+  	 */
+  	function downloadBlob(fileContents,fileName,fileMIMEtype){
+  		//checking if file is an image for preview
+			if(fileMIMEtype.includes("image")){
+  			var img = document.getElementById("previewImg");
+  			var url = img.src.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+			}
+			var fileContents = decrypted.replace('data:' + fileMIMEtype, 'data:application/octet-stream');
+			var downloadLink = document.createElement("a");
+			downloadLink.href = (fileMIMEtype.includes("image"))?url:fileContents;
+			downloadLink.download = fileName;
+			document.body.appendChild(downloadLink);
+			//simulating a click to download
+			downloadLink.click();
+			document.body.removeChild(downloadLink);
+  	}
+
+  	/**
+		 * Fetching the file list and appending to the DOM
+  	 */
     $.get("../fileMetadata/"+nodeID+"/?_format=json", function(fileMetaData){
     	console.log(fileMetaData);
     	if(fileMetaData.fileCount!=0){
@@ -36,34 +85,18 @@
     			$(".node__content div[property='schema:text']").append(anc);
     			//binding the function to the onclick event of the dynamically
     			// generated elements
-    			anc.onclick = dynamicEvent;
+    			anc.onclick = getFile;
     			$(".node__content div[property='schema:text']").append("<br>");
     		});
     	}
     });
 
     /**
-    	* Section responsible for on click event handling and triggering of the 
-      * decryption and download functions
-      */
-    $("a").click(function(event_){//for testing
-  		event_.preventDefault();
-  		//get file contents from url
-  		
-  	});
-
-    // $(".csfc-file-field").click(function(){
-    // 	console.log("this");
-    // 	alert($(this).attr('csfc-file-path'));
-    // });
-    
-    /**
      * 
      */
   	$("#decryptFields").click(function(e){
   		// append all to list
   		e.preventDefault();
-  		// currently only for first file field in DOM, later add a forEach loop
   		file = e.target.files[0];
   		console.log(file.size);
   		console.log(file.name);
@@ -86,19 +119,7 @@
 	    		reader.onload = function(event_){
 	    			var decrypted = CryptoJS.AES.decrypt(event_.target.result, group_access_key).toString(CryptoJS.enc.Latin1); 
 	    			console.log("clearText: ",decrypted);
-	    			if(fileMIMEtype.includes("image")){
-		    			var img = document.getElementById("previewImg");
-		    			var url = img.src.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
-	    			}
-	    			var href = decrypted.replace('data:' + fileMIMEtype, 'data:application/octet-stream');
-	    			var downloadLink = document.createElement("a");
-	    			downloadLink.href = (fileMIMEtype.includes("image"))?url:href;
-	    			downloadLink.download = file_name;
-	    			document.body.appendChild(downloadLink);
-	    			downloadLink.click();
-	    			document.body.removeChild(downloadLink);
-	    			
-
+	    			downloadBlob(decrypted,file_name,fileMIMEtype);
 	    		}
 	    		reader.readAsText(file);
 	    		

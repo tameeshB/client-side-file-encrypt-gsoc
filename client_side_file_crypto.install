@@ -119,6 +119,18 @@ function client_side_file_crypto_schema() {
         'not null' => TRUE,
         'description' => "node ID of the node where the file is attached",
       ],
+      'isImage' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "Boolean value for if the file is an image or not.",
+      ],
+      'MIMEtype' => [
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => FALSE,
+        'description' => "MIME type for the file",
+      ],
       'roleName' => [
         'type' => 'varchar',
         'length' => 20,
