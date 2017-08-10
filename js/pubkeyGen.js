@@ -16,11 +16,16 @@
       }
   }
   
-  function getCsrfToken() {
-    $.get("../rest/session/token", function(data) {
-    return data;
-    });
-  }
+  /**
+     * Method to return the csrf token
+     */
+    function getCsrfToken() {
+       return $.ajax({
+         type: "GET",
+           url: "/rest/session/token",
+           async: false
+         }).responseText;
+    }
 
   $(document).ready(function(){
     var uid = drupalSettings.client_side_file_crypto.uid;
@@ -37,22 +42,20 @@
     localStorage.setItem("csfcPubKey_"+uid,public_key);
     localStorage.setItem("csfcPrivKey_"+uid,private_key);
     var csrf_t = '';
-    $.get("../rest/session/token", function(csrf_t) {
-      var data_ = {
-        'publicKey' : public_key,
-      };
-      jQuery.ajax({
-        url: '../publicKey?_format=json',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/hal+json',
-          'X-CSRF-Token': csrf_t,
-        },
-        data: JSON.stringify(data_),
-        success: function (node) {
-          console.log(node);
-        }
-      });
+    var data_ = {
+      'publicKey' : public_key,
+    };
+    jQuery.ajax({
+      url: '/publicKey?_format=json',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/hal+json',
+        'X-CSRF-Token': getCsrfToken(),
+      },
+      data: JSON.stringify(data_),
+      success: function (node) {
+        console.log(node);
+      }
     });
     $("#key-status").text("Key generated.");
     $("#more-info").text("A private key has been downloaded to your computer that you will need to keep to keep safe in case your browser data gets wiped and to access the encrypted files on other devices. In case you need to restore the keys you can do it at /reloadPrivateKey");

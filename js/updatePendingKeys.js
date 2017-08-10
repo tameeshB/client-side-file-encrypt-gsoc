@@ -2,9 +2,19 @@
 (function ($) {
   // Jquery onload function.
   $(document).ready(function(){
+    /**
+     * Method to return the csrf token
+     */
+    function getCsrfToken() {
+       return $.ajax({
+         type: "GET",
+           url: "/rest/session/token",
+           async: false
+         }).responseText;
+     }
+
     var uid = drupalSettings.client_side_file_crypto.uid;
     ////-----------
-      $.get("/rest/session/token", function(csrf_t){
         $.get("/publicKey/?_format=json", function(xhr_pub_key){
           var publicKey = xhr_pub_key['publicKey'];
           var privateKey = localStorage.getItem("csfcPrivKey_"+uid);
@@ -32,7 +42,7 @@
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/hal+json',
-                    'X-CSRF-Token': csrf_t
+                    'X-CSRF-Token': getCsrfToken
                   },
                   data: JSON.stringify(json_body),
                   success: function (node) {
@@ -46,10 +56,9 @@
 
           });
         });
-      });
     ////-----------
   });
   $(document).ajaxStop(function() {
-    // window.location="/";
+    window.location="/";
   });
 })(jQuery,Drupal); 
