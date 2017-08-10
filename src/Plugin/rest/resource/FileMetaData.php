@@ -111,7 +111,7 @@ class FileMetaData extends ResourceBase {
         $files[$fileIndex++]["path"] = $row["pathToFile"];
       }
       if (count($files) > 0) {
-        $return["message"] = "AccessKey Fetch Complete.";
+        $return["message"] = "File Metadata Fetch Complete.";
         $return["fileCount"] = $fileIndex;
         $return["files"] = $files;
         $status = 200;

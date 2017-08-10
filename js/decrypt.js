@@ -6,6 +6,7 @@
   $(document).ready(function(){
   	var file = null;
   	var encryptedFileList = $(".node__content div[property='schema:text']");
+
   	/**
 		 * Method to return the csrf token
   	 */
@@ -22,13 +23,14 @@
 		 * Method get file contents from url parameter
   	 */
 		function getFileAsText(fileUrl){
-		    // read text from URL location
+			console.log("File to fetch", fileUrl);
+		  // read text from URL location
 		  $.ajax({
 		    url: fileUrl,
 		    type: 'get',
 		    async: false,
 		    success: function(contents) {
-		      console.log(contents); /* only for testing */
+		      // console.log(contents); /* only for testing */
 		      return(contents);
 		    }
 		  });
@@ -44,28 +46,54 @@
   	 * Function to get triggered onclick of the dynamically generated anchors
   	 */
   	function getFile() {
-  		console.log("Getting this file this file: ",this.getAttribute('csfc-file-path'));
   		var chipertextFileContent = getFileAsText(this.getAttribute('csfc-file-path'));
 			var fileName =  this.innerHTML;
 			var fileMIMEtype = this.getAttribute('csfc-file-MIME-type');
 			var roleName = this.getAttribute('csfc-file-role');
 			console.log("fileName:",fileName);
 			console.log("MIME:",fileMIMEtype);
-			var privateKey = localStorage.getItem("privKey");
-			var decrypt = new JSEncrypt();
+	  	var decrypted = decryptData(chipertextFileContent,roleName);
+			console.log("clearText: ",decrypted);
+			downloadBlob(decrypted,fileName,fileMIMEtype);
+	  	
+	  		
+  	}
+
+  	/**
+		 * Function taking ciphertext and rolename as parameters and returning
+		 * cleartext.
+  	 */
+  	function decryptData(ciphertext,roleName){
+  		console.log("Getting this file this file: ",);
+  		var chipertextFileContent = ciphertext;
+  		var privateKey = localStorage.getItem("privKey");
+  		var decrypt = new JSEncrypt();
 	  	decrypt.setPrivateKey(privateKey);
-	    $.get("../../accessKey/?_format=json", function(xhr_access_key){
+  		$.get("../../accessKey/?_format=json", function(xhr_access_key){
+	    	console.log(xhr_access_key);
+	    	var acessKey = xhr_access_key['accessKeys']['administrator'];
 	  		//currently for testing, using only one role, will later add a dropdown or something for this.
-	  		var group_access_key = decrypt.decrypt(xhr_access_key['accessKeys']['administrator']);
+	  		var group_access_key = decrypt.decrypt(acessKey);
 	  		console.log("symmetric Key:",group_access_key);
 	  		var reader = new FileReader();
-	  		reader.onload = function(event_){
-	  			var decrypted = CryptoJS.AES.decrypt(chipertextFileContent, group_access_key).toString(CryptoJS.enc.Latin1); 
-	  			console.log("clearText: ",decrypted);
-	  			downloadBlob(decrypted,fileName,fileMIMEtype);
-	  		}
-	  		reader.readAsText(file);
+  			var decrypted = CryptoJS.AES.decrypt(chipertextFileContent, group_access_key).toString(CryptoJS.enc.Latin1); 
+  			console.log("clearText: ",decrypted);
+  			// downloadBlob(decrypted,fileName,fileMIMEtype);
+	  		return decrypted;
 	  	});
+
+  	}
+
+  	/**
+  	 * Build image preview
+  	 */
+
+  	function imagePreview(){
+  		if(fileMIMEtype.includes("image")){
+  			var img = document.getElementById("previewImg");
+  			var url = img.src.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+			}
+
   	}
 
   	/**
@@ -122,7 +150,6 @@
     		});
     	}
     });
-    
   });
 })(jQuery); 
 
