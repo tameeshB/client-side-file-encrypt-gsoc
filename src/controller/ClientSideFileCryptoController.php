@@ -42,6 +42,7 @@ class ClientSideFileCryptoController extends ControllerBase {
    *   returns the render array for the page to redirect to post login.
    */
   public function postLoginCheck() {
+    global $user;
     $output = [];
     $output['heading1'] = [
       '#type' => 'markup',

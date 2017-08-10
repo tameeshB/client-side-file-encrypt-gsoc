@@ -130,7 +130,7 @@ class AccessKey extends ResourceBase {
    *   Throws exception expected.
    */
   public function post(array $data = []) {
-    $status = 404;
+    $status = 400;
     $return = [];
     // Use current user after pass authentication to validate access.
     if (!$this->currentUser->hasPermission('access content')) {

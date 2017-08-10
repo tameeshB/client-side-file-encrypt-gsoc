@@ -17,6 +17,7 @@
   // Jquery onload function.
   var file = null;
   $(document).ready(function(){
+    var uid = drupalSettings.client_side_file_crypto.uid;
   	$("#cryptoFields").change(function(e){
   		e.preventDefault();
   		//currently only for first file field in DOM, later add a forEach loop
@@ -28,7 +29,7 @@
   		console.log("fileName:",file_name);
 	    $.get("../../rest/session/token", function(csrf_t){
 	      $.get("../../accessKey/?_format=json", function(xhr_access_key){
-	    		var privateKey = localStorage.getItem("privKey");
+	    		var privateKey = localStorage.getItem("csfcPrivKey_"+uid);
 	    		console.log("csrf",csrf_t);
 	    		console.log("accessKey",xhr_access_key);
 	    		console.log("privKey",privateKey);
@@ -94,5 +95,5 @@
 	    });
 	  });
   });
-})(jQuery); 
+})(jQuery,Drupal); 
 

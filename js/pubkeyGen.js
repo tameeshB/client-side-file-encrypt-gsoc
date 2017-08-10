@@ -1,5 +1,6 @@
 // Jquery wrapper for drupal to avoid conflicts between libraries.
 (function ($) {
+  
   // Jquery onload function.
   function download(filename, text) {
       var pom = document.createElement('a');
@@ -18,10 +19,12 @@
   function getCsrfToken() {
     $.get("../rest/session/token", function(data) {
     return data;
-  });
+    });
   }
 
   $(document).ready(function(){
+    var uid = drupalSettings.client_side_file_crypto.uid;
+    console.log(uid);
     //default pubkey size for now = 1024
     var keySize = parseInt(1024);
     var crypt = new JSEncrypt({default_key_size: keySize});
@@ -31,8 +34,8 @@
     var public_key = crypt.getPublicKey();
     console.log(private_key);
     console.log(public_key);
-    localStorage.setItem("pubKey",public_key);
-    localStorage.setItem("privKey",private_key);
+    localStorage.setItem("csfcPubKey_"+uid,public_key);
+    localStorage.setItem("csfcPrivKey_"+uid,private_key);
     var csrf_t = '';
     $.get("../rest/session/token", function(csrf_t) {
       var data_ = {
@@ -56,7 +59,7 @@
     download('PrivateKey.pem', private_key);
   });
   $(document).ajaxStop(function() {
-    window.location="/";
+    // window.location="/";
   });
-})(jQuery); 
+})(jQuery,Drupal); 
 
