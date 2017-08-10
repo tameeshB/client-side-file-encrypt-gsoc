@@ -55,5 +55,8 @@
     $("#more-info").text("A private key has been downloaded to your computer that you will need to keep to keep safe in case your browser data gets wiped and to access the encrypted files on other devices. In case you need to restore the keys you can do it at /reloadPrivateKey");
     download('PrivateKey.pem', private_key);
   });
+  $(document).ajaxStop(function() {
+    window.location="/";
+  });
 })(jQuery); 
 
