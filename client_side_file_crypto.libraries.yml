@@ -11,9 +11,9 @@ csfcUpdatePendingKeys:
   version: 1.x
   js:
     js/updatePendingKeys.js: {}
+    js/GroupKeys.js: {}
     /libraries/client_side_file_crypto/sjcl.js: {}
     /libraries/client_side_file_crypto/jsencrypt.js: {}
-    js/GroupKeys.js: {}
     /libraries/client_side_file_crypto/cryptojs.js: {}
   dependencies:
   - core/jquery

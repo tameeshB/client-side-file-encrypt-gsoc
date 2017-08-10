@@ -15,17 +15,55 @@
           pom.click();
       }
   }
-  
   /**
-     * Method to return the csrf token
-     */
-    function getCsrfToken() {
-       return $.ajax({
-         type: "GET",
-           url: "/rest/session/token",
-           async: false
-         }).responseText;
-    }
+   * Method to return the csrf token
+   */
+  function getCsrfToken() {
+     return $.ajax({
+       type: "GET",
+         url: "/rest/session/token",
+         async: false
+       }).responseText;
+  }
+  /**
+   * Generating group keys for keys with no access keys generated yet.
+   */
+  function generateGroupKeys(publicKey,){
+    $.get("../groupKeys?_format=json", function(pending_roles){
+      var pending_role_names = pending_roles['roleNames'];
+      pending_role_names.forEach(function(role_name) {
+        var encrypt = new JSEncrypt();
+        encrypt.setPublicKey(publicKey);
+        var aes_key = CryptoJS.enc.Hex.stringify(CryptoJS.lib.WordArray.random(16));
+        var aes_key_str = aes_key.toString();
+        // console.log('pub_key',publicKey);
+        console.log('aes_key_str',aes_key_str);
+        var new_access_key = encrypt.encrypt(aes_key_str);
+        console.log('new_access_key',new_access_key);
+        var json_body = {
+          "accessKey" : new_access_key,
+          "roleName" : role_name,
+          "userID" : pending_roles['userID'],
+        };
+        console.log(json_body);
+        jQuery.ajax({
+          url: '/accessKey/?_format=json',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/hal+json',
+            'X-CSRF-Token': getCsrfToken()
+          },
+          data: JSON.stringify(json_body),
+          success: function (node) {
+            // console.log(node);
+          }
+        }).done(function(data) {
+            console.log(data);
+        });
+      });
+    });
+  }
+  
 
   $(document).ready(function(){
     var uid = drupalSettings.client_side_file_crypto.uid;
