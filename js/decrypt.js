@@ -6,7 +6,6 @@
   $(document).ready(function(){
   	var file = null;
   	var encryptedFileList = $(".node__content div[property='schema:text']");
-
   	/**
 		 * Method to return the csrf token
   	 */
@@ -18,7 +17,18 @@
   	     }).responseText;
   	 }
 
-
+ 	  /**
+		 * Get the access Key to a role for the user
+	   */
+	  function getAccessKey(roleName){
+	  	var xhrData = $.ajax({
+  	     type: "GET",
+  	       url: "/accessKey/?_format=json",
+  	       async: false
+  	  }).responseText;
+  	  var accessKeysObject = JSON.parse(xhrData);
+	  	return accessKeysObject.accessKeys[roleName];
+	  }
   	/**
 		 * Method get file contents from url parameter
   	 */
@@ -29,9 +39,9 @@
 		    url: fileUrl,
 		    type: 'get',
 		    async: false,
-		    success: function(contents) {
-		      // console.log(contents); /* only for testing */
-		      return(contents);
+		    success: function(xcsrfToken) {
+		      // console.log(xcsrfToken); /* only for testing */
+		      return(xcsrfToken);
 		    }
 		  });
 		}	
@@ -55,8 +65,6 @@
 	  	var decrypted = decryptData(chipertextFileContent,roleName);
 			console.log("clearText: ",decrypted);
 			downloadBlob(decrypted,fileName,fileMIMEtype);
-	  	
-	  		
   	}
 
   	/**
@@ -69,18 +77,17 @@
   		var privateKey = localStorage.getItem("privKey");
   		var decrypt = new JSEncrypt();
 	  	decrypt.setPrivateKey(privateKey);
-  		$.get("../../accessKey/?_format=json", function(xhr_access_key){
-	    	console.log(xhr_access_key);
-	    	var acessKey = xhr_access_key['accessKeys']['administrator'];
-	  		//currently for testing, using only one role, will later add a dropdown or something for this.
-	  		var group_access_key = decrypt.decrypt(acessKey);
-	  		console.log("symmetric Key:",group_access_key);
-	  		var reader = new FileReader();
-  			var decrypted = CryptoJS.AES.decrypt(chipertextFileContent, group_access_key).toString(CryptoJS.enc.Latin1); 
-  			console.log("clearText: ",decrypted);
-  			// downloadBlob(decrypted,fileName,fileMIMEtype);
-	  		return decrypted;
-	  	});
+    	var acessKey = getAccessKey('administrator');
+    	console.log(accessKey);
+  		//currently for testing, using only one role, will later add a dropdown or something for this.
+  		var group_access_key = decrypt.decrypt(acessKey);
+  		console.log("symmetric Key:",group_access_key);
+  		var reader = new FileReader();
+			var decrypted = CryptoJS.AES.decrypt(chipertextFileContent, group_access_key).toString(CryptoJS.enc.Latin1); 
+			console.log("clearText: ",decrypted);
+			// downloadBlob(decrypted,fileName,fileMIMEtype);
+  		return decrypted;
+	  	
 
   	}
 
@@ -88,12 +95,17 @@
   	 * Build image preview
   	 */
 
-  	function imagePreview(){
+  	function imagePreview(imgPath,imgDOMID){
+  		console.log("imagePreview called with params:"+imgPath+imgDOMID);
   		if(fileMIMEtype.includes("image")){
-  			var img = document.getElementById("previewImg");
+  			var imgCiphertext = getFileAsText(imgPath);
+  			decryptData(imgCiphertext);
+  			var img = document.getElementById(imgDOMID);
   			var url = img.src.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
 			}
-
+			else{
+				$("#"+imgDOMID).hide();
+			}
   	}
 
   	/**
@@ -101,6 +113,7 @@
   	 * the file.
   	 */
   	function downloadBlob(fileContents,fileName,fileMIMEtype){
+  		console.log("downloadBlob called with params:"+fileContents.substring(0,10)+' '+fileName+' '+fileMIMEtype);
   		//checking if file is an image for preview
 			if(fileMIMEtype.includes("image")){
   			var img = document.getElementById("previewImg");
@@ -141,9 +154,10 @@
     			encryptedFileList.append(anc);
     			if(fileData.isImage==1){
     				encryptedFileList.append("<img src='' class='csfc-img' id='csfc-img-"+fileData.fileID+"'>");
+    				imagePreview(fileData.path,'csfc-img-'+fileData.fileID);
     				// call decrypt to preview image
     			}
-    			//binding the function to the onclick event of the dynamically
+    			// binding the function to the onclick event of the dynamically
     			// generated elements
     			anc.onclick = getFile;
     			encryptedFileList.append("<br>");
