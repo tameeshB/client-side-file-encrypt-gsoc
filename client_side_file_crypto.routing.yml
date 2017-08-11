@@ -22,3 +22,9 @@ client_side_file_crypto.reloadKeys:
   requirements:
     _permission: 'access content'
     _user_is_logged_in: 'TRUE'
+client_side_file_crypto.fileupload:
+  path: 'encryptedFileUpload'
+  defaults: { _controller: '\Drupal\client_side_file_crypto\Controller\FileUploadController::create' }
+  methods:  [POST]
+  requirements:
+    _custom_access: '\Drupal\client_side_file_crypto\Controller\FileUploadController::access'

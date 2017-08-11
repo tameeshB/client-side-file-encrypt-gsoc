@@ -52,53 +52,32 @@
     		var reader = new FileReader();
     		reader.onload = function(event_){
     			var encrypted = CryptoJS.AES.encrypt(event_.target.result, group_access_key); 
-    			//downloading generated file for debugging/testing
-    			console.log("cipherText: ",encrypted);
-    			download(file_name,encrypted);
-    			//AJAX file generate and upload 1
-    			/*
-    			var boundary = "---------------------------7da24f2e50046";
-    			var body = '--' + boundary + '\r\n'
-    			         // Parameter name is "file" and local filename is "temp.txt"
-    			         + 'Content-Disposition: form-data; name="file";'
-    			         + 'filename="' + file_name + '"\r\n'
-    			         // Add the file's mime-type
-    			         + 'Content-type: ' + file.type + '\r\n\r\n'
-    			         // Add your data:
-    			         + encrypted + '\r\n'
-    			         + '--'+ boundary + '--';
-
-    			$.ajax({
-    			    contentType: "multipart/form-data; boundary="+boundary,
-    			    data: body,
-    			    type: "POST",
-    			    url: "back.php",
-    			    success: function (data, status) {
-    			    	console.log(data,status);
-    			    }
-    			}); */
-    			//AJAX file generate and upload 2
-    			//alternate AJAX
     			var formData = new FormData();
     			formData.append('file', new File([new Blob([encrypted])], file_name));
-    			formData.append('another-form-field', 'some value');
+    			formData.append('csfcFileName', file_name);
+    			formData.append('csfcFileMIME', file.type);
 
     			$.ajax({
-    			    url: 'back.php',//replace
+    			    url: '/encryptedFileUpload',
     			    data: formData,
     			    processData: false,
     			    contentType: false,
     			    type: 'POST',
-    			    success: function () {
+    			    headers: {
+            		'X-CSRF-Token': getCsrfToken()
+          		},
+    			    success: function (response) {
+    			    		console.log(response);
     			        console.log('ok');
     			    },
-    			    error: function () {
+    			    error: function (response) {
+    			    		console.log(response);
     			        console.log('err'); // replace with proper error handling
     			    }
     			});
     			
     		}
-    		console.log(reader.readAsDataURL(file));
+    		reader.readAsDataURL(file);
     	});
 	  });
   });
