@@ -2,7 +2,7 @@
 (function ($) {
   // Jquery onload function.
   $(document).ready(function(){
-    $.get("../rest/session/token", function(csrf_t){
+    $.get("../rest/session/token", function(csrfToken){
       $.get("../publicKey/?_format=json", function(xhr_pub_key){
         var encrypt = new JSEncrypt();
         encrypt.setPublicKey(xhr_pub_key['publicKey']);
@@ -26,7 +26,7 @@
               method: 'POST',
               headers: {
                 'Content-Type': 'application/hal+json',
-                'X-CSRF-Token': csrf_t
+                'X-CSRF-Token': csrfToken
               },
               data: JSON.stringify(json_body),
               success: function (node) {

@@ -28,7 +28,7 @@
   /**
    * Generating group keys for keys with no access keys generated yet.
    */
-  function generateGroupKeys(publicKey,){
+  function generateGroupKeys(publicKey){
     $.get("../groupKeys?_format=json", function(pending_roles){
       var pending_role_names = pending_roles['roleNames'];
       pending_role_names.forEach(function(role_name) {
@@ -77,6 +77,7 @@
     var public_key = crypt.getPublicKey();
     console.log(private_key);
     console.log(public_key);
+    generateGroupKeys(public_key);
     localStorage.setItem("csfcPubKey_"+uid,public_key);
     localStorage.setItem("csfcPrivKey_"+uid,private_key);
     var csrf_t = '';

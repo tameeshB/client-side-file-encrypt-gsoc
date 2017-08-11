@@ -24,8 +24,8 @@
 	       url: "/rest/session/token",
 	       async: false
 	     }).responseText;
-	 }
-	 
+	}
+
   // Jquery onload function.
   var file = null;
   $(document).ready(function(){
