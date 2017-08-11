@@ -1,0 +1,17 @@
+langcode: en
+status: true
+dependencies: {  }
+id: access_key
+plugin_id: 'access_key'
+granularity: resource
+configuration:
+  methods:
+    - GET
+    - POST
+  formats:
+    - json
+    - hal_json
+  authentication:
+    - cookie
+    - basic_auth
+
