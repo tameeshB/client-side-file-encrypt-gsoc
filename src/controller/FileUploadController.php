@@ -34,8 +34,8 @@ class FileUploadController {
 
     $data = file_get_contents($_FILES['file']['tmp_name']);
     $mime = $_FILES['file']['type'];
-
-    $file = file_save_data($data, "public://" . rand(10, 99) . '_' . $_POST['csfcFileName'], FILE_EXISTS_REPLACE);
+    $fileNameOnDisk = rand(10, 99) . '_' . $_POST['csfcFileName'];
+    $file = file_save_data($data, "public://" . $fileNameOnDisk , FILE_EXISTS_REPLACE);
     $response['file_id'] = $file->id();
     $response['file_path'] = $file->url();
 
