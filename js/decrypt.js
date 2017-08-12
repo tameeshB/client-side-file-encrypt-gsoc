@@ -2,36 +2,31 @@
 (function ($) {
   // Jquery onload function.
   
-  
   $(document).ready(function(){
   	var file = null;
   	var encryptedFileList = $(".node__content div[property='schema:text']");
-  	/**
-		 * Method to return the csrf token
-  	 */
-  	function getCsrfToken() {
-  	   return $.ajax({
-  	     type: "GET",
-  	       url: "/rest/session/token",
-  	       async: false
-  	     }).responseText;
-  	 }
 
- 	  /**
-		 * Get the access Key to a role for the user
-	   */
+		//Method to return the csrf token.
+  	function getCsrfToken() {
+	    return $.ajax({
+	      type: "GET",
+	      url: "/rest/session/token",
+	      async: false
+	    }).responseText;
+  	}
+
+		//Get the access Key to a role for the user
 	  function getAccessKey(roleName){
 	  	var xhrData = $.ajax({
-  	     type: "GET",
-  	       url: "/accessKey/?_format=json",
-  	       async: false
+  	    type: "GET",
+  	    url: "/accessKey/?_format=json",
+  	    async: false
   	  }).responseText;
   	  var accessKeysObject = JSON.parse(xhrData);
 	  	return accessKeysObject.accessKeys[roleName];
 	  }
-  	/**
-		 * Method get file contents from url parameter
-  	 */
+
+		//Method get file contents from url parameter
 		function getFileAsText(fileUrl){
 			console.log("File to fetch", fileUrl);
 		  // read text from URL location
@@ -39,22 +34,17 @@
 		    url: fileUrl,
 		    type: 'get',
 		    async: false,
-		    success: function(xcsrfToken) {
-		      // console.log(xcsrfToken); /* only for testing */
-		      return(xcsrfToken);
+		    success: function(fileContent) {
+		      return(fileContent);
 		    }
 		  });
 		}	
 
-  	/**
-		 * Get the current node ID for the REST request.
-  	 */
+		//Get the current node ID for the REST request.
   	var nodeID = document.querySelector("link[rel='shortlink']").getAttribute("href").split('/')[2];
   	console.log("nodeID:",nodeID);
 
-  	/**
-  	 * Function to get triggered onclick of the dynamically generated anchors
-  	 */
+  	//Function to get triggered onclick of the dynamically generated anchors
   	function getFile() {
   		var chipertextFileContent = getFileAsText(this.getAttribute('csfc-file-path'));
 			var fileName =  this.innerHTML;
@@ -67,12 +57,8 @@
 			downloadBlob(decrypted,fileName,fileMIMEtype);
   	}
 
-  	/**
-		 * Function taking ciphertext and rolename as parameters and returning
-		 * cleartext.
-  	 */
+  	//Function taking ciphertext and rolename and returning cleartext.
   	function decryptData(ciphertext,roleName){
-  		console.log("Getting this file this file: ",);
   		var chipertextFileContent = ciphertext;
   		var privateKey = localStorage.getItem("privKey");
   		var decrypt = new JSEncrypt();
@@ -91,10 +77,7 @@
 
   	}
 
-  	/**
-  	 * Build image preview
-  	 */
-
+  	//Build image preview
   	function imagePreview(imgPath,imgDOMID){
   		console.log("imagePreview called with params:"+imgPath+imgDOMID);
   		if(fileMIMEtype.includes("image")){
@@ -129,9 +112,7 @@
 			document.body.removeChild(downloadLink);
   	}
 
-  	/**
-		 * Fetching the file list and appending to the DOM
-  	 */
+		//Fetching the file list and appending to the DOM
     $.get("../fileMetadata/"+nodeID+"/?_format=json", function(fileMetaData){
     	console.log(fileMetaData);
     	if(fileMetaData.fileCount!=0){
