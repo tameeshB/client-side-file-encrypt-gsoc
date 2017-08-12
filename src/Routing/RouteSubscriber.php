@@ -1,4 +1,5 @@
 <?php
+
 namespace Drupal\client_side_file_crypto\Routing;
 
 use Drupal\Core\Routing\RouteSubscriberBase;
@@ -8,6 +9,7 @@ use Symfony\Component\Routing\RouteCollection;
  * Alter modules's route(s).
  */
 class RouteSubscriber extends RouteSubscriberBase {
+
   /**
    * {@inheritdoc}
    *
@@ -18,4 +20,5 @@ class RouteSubscriber extends RouteSubscriberBase {
       $route->setRequirement('_access_rest_csrf', 'TRUE');
     }
   }
+
 }

@@ -16,6 +16,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 function client_side_file_crypto_form_user_login_form_alter(&$form, FormState $form_state) {
   $form['#submit'][] = 'client_side_file_crypto_user_login_submit';
 }
+
 /**
  * Implements hook_page_attachments().
  */
@@ -24,11 +25,11 @@ function client_side_file_crypto_page_attachments(&$page) {
   $page['#attached']['drupalSettings']['client_side_file_crypto']['uid'] = $user->id();
 }
 
-
 /**
  * Implements hook_form_FORM_ID_alter().
  */
 function client_side_file_crypto_form_node_article_form_alter(&$form, &$form_state, $form_id) {
+  $form['#submit'][] = 'client_side_file_crypto_node_article_form_submit';
   $form['#attached'] = [
     'library' => [
       'client_side_file_crypto/csfcEncrypt',
@@ -41,7 +42,39 @@ function client_side_file_crypto_form_node_article_form_alter(&$form, &$form_sta
     '#weight' => 15,
     '#description' => t('Attach your file with sensitive data here.'),
   ];
+  $form['fileID'] = [
+    '#type' => 'hidden',
+    '#id' => 'fileID',
+    '#title' => t('Encrypted file ID'),
+    '#weight' => 14,
+  ];
+}
 
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Attaches post submission method to node form.
+ */
+function client_side_file_crypto_form_node_form_alter(&$form, FormState $form_state, $form_id) {
+  foreach (array_keys($form['actions']) as $action) {
+    if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
+      $form['actions'][$action]['#submit'][] = 'client_side_file_crypto_form_submit';
+    }
+  }
+}
+
+/**
+ * Form submission handler for node_article_form().
+ *
+ * Encrypted file upload link for new node.
+ */
+function client_side_file_crypto_form_submit(array $form, FormState $form_state) {
+  $query = \Drupal::database()->update('client_side_file_crypto_files');
+  $query->fields([
+    'nodeID' => $form_state->getValue('nid'),
+  ]);
+  $query->condition('fileIndex', $form_state->getValue('fileID'));
+  $query->execute();
 }
 
 /**

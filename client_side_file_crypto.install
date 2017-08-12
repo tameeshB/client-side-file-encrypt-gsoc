@@ -41,7 +41,7 @@ function client_side_file_crypto_install() {
     $query->values($record);
   }
   $query->execute();
-  //logout all logged in users after the module install
+  // Logout all logged in users after the module install.
   db_truncate('sessions')->execute();
 }
 

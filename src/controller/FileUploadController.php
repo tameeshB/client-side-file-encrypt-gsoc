@@ -1,4 +1,5 @@
 <?php
+
 namespace Drupal\client_side_file_crypto\Controller;
 
 use Drupal\Core\Session\AccountInterface;
@@ -34,12 +35,22 @@ class FileUploadController {
     $data = file_get_contents($_FILES['file']['tmp_name']);
     $mime = $_FILES['file']['type'];
 
-    $file = file_save_data($data, "public://".rand(10,99).'_'.$_POST['csfcFileName'], FILE_EXISTS_REPLACE);
+    $file = file_save_data($data, "public://" . rand(10, 99) . '_' . $_POST['csfcFileName'], FILE_EXISTS_REPLACE);
     $response['file_id'] = $file->id();
     $response['file_path'] = $file->url();
 
+    $dbInsert = db_insert('client_side_file_crypto_files')
+      ->fields(
+      [
+        'fileIndex' => $file->id(),
+        'fileName' => $_POST['csfcFileName'],
+        'nodeID' => '-1',
+        'roleName' => $_POST['csfcRoleName'],
+        'pathToFile' => $file->url(),
+      ]
+    )->execute();
+
     return new JsonResponse($response);
   }
-
 
 }
