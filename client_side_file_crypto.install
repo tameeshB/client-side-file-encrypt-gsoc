@@ -104,9 +104,9 @@ function client_side_file_crypto_schema() {
     'description' => 'Stores all metadata for encrypted files',
     'fields' => [
       'fileIndex' => [
-        'type' => 'serial',
+        'type' => 'int',
         'not null' => TRUE,
-        'description' => "Index for the file metadata",
+        'description' => "fileID identifier for the file metadata",
       ],
       'fileName' => [
         'type' => 'varchar',
@@ -139,9 +139,9 @@ function client_side_file_crypto_schema() {
       ],
       'pathToFile' => [
         'type' => 'varchar',
-        'length' => 100,
+        'length' => 1000,
         'not null' => TRUE,
-        'description' => "role name for which the file is encrypted",
+        'description' => "Path at which the file is stored",
       ],
     ],
     'primary key' => ['fileIndex'],
