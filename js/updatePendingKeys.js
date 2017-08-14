@@ -15,25 +15,25 @@
 
     var uid = drupalSettings.client_side_file_crypto.uid;
     ////-----------
-    $.get("/publicKey/?_format=json", function(xhr_pub_key){
-      var publicKey = xhr_pub_key['publicKey'];
-      var privateKey = localStorage.getItem("csfcPrivKey_"+uid);
+    $.get("/publicKey/?_format=json", function(xhrPubKey){
+      var publicKey = xhrPubKey['publicKey'];
+      var privateKey = localStorage.getItem("csfcPrivKey_" + uid);
       var encrypt = new JSEncrypt();
-      $.get("/accessKey/pending?_format=json", function(pending_keys_json){
+      $.get("/accessKey/pending?_format=json", function(pendingKeysJSON){
         var decrypt = new JSEncrypt();
         decrypt.setPrivateKey(privateKey);
-        pending_keys = pending_keys_json['accessKeys'];
-        pending_keys.forEach(function(accessKey) {
-          var group_access_key = decrypt.decrypt(accessKey['access_key']);
+        pendingKeys = pendingKeysJSON['accessKeys'];
+        pendingKeys.forEach(function(accessKey) {
+          var groupAccessKey = decrypt.decrypt(accessKey['access_key']);
           encrypt.setPublicKey(accessKey['pub_key']);
-          var new_access_key = encrypt.encrypt(group_access_key);
-          console.log(group_access_key);
-          console.log(new_access_key);
-          if(new_access_key==null || group_access_key == null){
+          var newAccessKey = encrypt.encrypt(groupAccessKey);
+          console.log(groupAccessKey);
+          console.log(newAccessKey);
+          if(!newAccessKey || !groupAccessKey){
             console.log('Key generation error');
           } else {
-            var json_body = {
-              "accessKey" : new_access_key,
+            var jsonBody = {
+              "accessKey" : newAccessKey,
               "roleName" : accessKey['role'],
               "userID" : accessKey['uid'],
             };
@@ -42,9 +42,9 @@
               method: 'POST',
               headers: {
                 'Content-Type': 'application/hal+json',
-                'X-CSRF-Token': getCsrfToken
+                'X-CSRF-Token': getCsrfToken()
               },
-              data: JSON.stringify(json_body),
+              data: JSON.stringify(jsonBody),
               success: function (node) {
                 // console.log(node);
               }
@@ -61,4 +61,4 @@
   $(document).ajaxStop(function() {
     window.location="/";
   });
-})(jQuery,Drupal); 
+})(jQuery, Drupal); 

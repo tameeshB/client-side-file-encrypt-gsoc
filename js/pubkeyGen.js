@@ -29,23 +29,23 @@
    * Generating group keys for keys with no access keys generated yet.
    */
   function generateGroupKeys(publicKey){
-    $.get("../groupKeys?_format=json", function(pending_roles){
-      var pending_role_names = pending_roles['roleNames'];
-      pending_role_names.forEach(function(role_name) {
+    $.get("../groupKeys?_format=json", function(pendingRoles){
+      var pendingRoleNames = pendingRoles['roleNames'];
+      pendingRoleNames.forEach(function(roleName) {
         var encrypt = new JSEncrypt();
         encrypt.setPublicKey(publicKey);
-        var aes_key = CryptoJS.enc.Hex.stringify(CryptoJS.lib.WordArray.random(16));
-        var aes_key_str = aes_key.toString();
+        var aesKey = CryptoJS.enc.Hex.stringify(CryptoJS.lib.WordArray.random(16));
+        var aesKeyStr = aesKey.toString();
         // console.log('pub_key',publicKey);
-        console.log('aes_key_str',aes_key_str);
-        var new_access_key = encrypt.encrypt(aes_key_str);
-        console.log('new_access_key',new_access_key);
-        var json_body = {
-          "accessKey" : new_access_key,
-          "roleName" : role_name,
-          "userID" : pending_roles['userID'],
+        console.log('aesKeyStr',aesKeyStr);
+        var newAccessKey = encrypt.encrypt(aesKeyStr);
+        console.log('newAccessKey',newAccessKey);
+        var jsonBody = {
+          "accessKey" : newAccessKey,
+          "roleName" : roleName,
+          "userID" : pendingRoles['userID'],
         };
-        console.log(json_body);
+        console.log(jsonBody);
         jQuery.ajax({
           url: '/accessKey/?_format=json',
           method: 'POST',
@@ -53,7 +53,7 @@
             'Content-Type': 'application/hal+json',
             'X-CSRF-Token': getCsrfToken()
           },
-          data: JSON.stringify(json_body),
+          data: JSON.stringify(jsonBody),
           success: function (node) {
             // console.log(node);
           }
@@ -73,16 +73,15 @@
     var crypt = new JSEncrypt({default_key_size: keySize});
     crypt.getKey();
     console.log("New keys generated");
-    var private_key = crypt.getPrivateKey();
-    var public_key = crypt.getPublicKey();
-    console.log(private_key);
-    console.log(public_key);
-    generateGroupKeys(public_key);
-    localStorage.setItem("csfcPubKey_"+uid,public_key);
-    localStorage.setItem("csfcPrivKey_"+uid,private_key);
-    var csrf_t = '';
+    var privateKey = crypt.getPrivateKey();
+    var publicKey = crypt.getPublicKey();
+    console.log(privateKey);
+    console.log(publicKey);
+    generateGroupKeys(publicKey);
+    localStorage.setItem("csfcPubKey_" + uid, publicKey);
+    localStorage.setItem("csfcPrivKey_" + uid, privateKey);
     var data_ = {
-      'publicKey' : public_key,
+      'publicKey' : publicKey,
     };
     jQuery.ajax({
       url: '/publicKey?_format=json',
@@ -98,7 +97,7 @@
     });
     $("#key-status").text("Key generated.");
     $("#more-info").text("A private key has been downloaded to your computer that you will need to keep to keep safe in case your browser data gets wiped and to access the encrypted files on other devices. In case you need to restore the keys you can do it at /reloadPrivateKey");
-    download('PrivateKey.pem', private_key);
+    download('PrivateKey.pem', privateKey);
   });
   $(document).ajaxStop(function() {
     // window.location="/";
