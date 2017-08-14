@@ -18,6 +18,14 @@ function client_side_file_crypto_form_user_login_form_alter(&$form, FormState $f
 }
 
 /**
+ * Node preprocess hook, adds the decryption library to the .
+ */
+function client_side_file_crypto_preprocess_node(&$variables) {
+  $node = $variables['node'];
+  $variables['#attached']['library'][] = 'client_side_file_crypto/csfcDecrypt';
+}
+
+/**
  * Form submission handler for user_login_form().
  *
  * Conditional redirect post login handler.

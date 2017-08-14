@@ -14,15 +14,14 @@ use Psr\Log\LoggerInterface;
  * Provides a resource to get view modes by entity and bundle.
  *
  * @RestResource(
- *   id = "access_key",
- *   label = @Translation("Access key"),
+ *   id = "FileMetaData",
+ *   label = @Translation("File Metadata"),
  *   uri_paths = {
- *     "canonical" = "//accessKey",
- *     "https://www.drupal.org/link-relations/create" = "/accessKey"
+ *     "canonical" = "//fileMetadata/{nodeID}"
  *   }
  * )
  */
-class AccessKey extends ResourceBase {
+class FileMetaData extends ResourceBase {
 
   /**
    * A current user instance.
@@ -32,7 +31,7 @@ class AccessKey extends ResourceBase {
   protected $currentUser;
 
   /**
-   * Constructs a new AccessKey object.
+   * Constructs a new FileMetaData object.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
@@ -81,31 +80,40 @@ class AccessKey extends ResourceBase {
    * @throws \Symfony\Component\HttpKernel\Exception\HttpException
    *   Throws exception expected.
    */
-  public function get() {
+  public function get($nodeID) {
 
     // Use current user after pass authentication to validate access.
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
+    // Check if user has access to view $nodeID.
     $key = "";
     $needsKey = 1;
     $result = [];
     $current_user = User::load($this->currentUser->id());
-    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (userID = :uid AND needsKey = :needsKeyVal)", [
-      ':uid' => $current_user->get('uid')->value,
-      ':needsKeyVal' => 0,
+    // Array of all the roles of the current user.
+    $roles = $current_user->getRoles();
+    $db_result = db_query("SELECT * FROM {client_side_file_crypto_files} WHERE (nodeID = :nodeID AND roleName in (:roles[]))", [
+      ':nodeID' => $nodeID,
+      ':roles[]' => $roles,
+    // Insert into client_side_file_crypto_files(`fileName`,`nodeID`,`roleName`,`pathToFile`) values ('Test File','1','authenticated','https://avatars1.githubusercontent.com/u/20886076?v=4&s=460')
     ]);
     // Db num rows condition.
     if ($db_result) {
-      $accessKeyIndex = 0;
-      $accessKeys = [];
+      $fileIndex = 0;
+      $files = [];
       while ($row = $db_result->fetchAssoc()) {
-        $accessKeys[$row["roleName"]] = $row["accessKey"];
+        $files[$fileIndex]["name"] = $row["fileName"];
+        $files[$fileIndex]["fileIndex"] = $row["fileID"];
+        $files[$fileIndex]["roleName"] = $row["roleName"];
+        $files[$fileIndex]["MIMEtype"] = $row["MIMEtype"];
+        $files[$fileIndex]["isImage"] = $row["isImage"];
+        $files[$fileIndex++]["path"] = $row["pathToFile"];
       }
-      if (count($accessKeys) > 0) {
-        $return["message"] = "AccessKey Fetch Complete.";
-        $return["keyCount"] = count($accessKeys);
-        $return["accessKeys"] = $accessKeys;
+      if (count($files) > 0) {
+        $return["message"] = "File Metadata Fetch Complete.";
+        $return["fileCount"] = $fileIndex;
+        $return["files"] = $files;
         $status = 200;
       }
       else {
@@ -116,43 +124,6 @@ class AccessKey extends ResourceBase {
     }
     else {
       $return["message"] = "An error occured.";
-      $status = 400;
-    }
-    return new ResourceResponse($return, $status);
-  }
-
-  /**
-   * Responds to POST requests.
-   *
-   * Registers an Access key against the access key request by a user.
-   *
-   * @throws \Symfony\Component\HttpKernel\Exception\HttpException
-   *   Throws exception expected.
-   */
-  public function post(array $data = []) {
-    $status = 404;
-    $return = [];
-    // Use current user after pass authentication to validate access.
-    if (!$this->currentUser->hasPermission('access content')) {
-      throw new AccessDeniedHttpException();
-    }
-    if ($user = User::load($this->currentUser->id())) {
-      // Data validation.
-      $query = \Drupal::database()->update('client_side_file_crypto_Keys');
-      $query->fields([
-        'accessKey' => $data['accessKey'],
-        'needsKey' => 0,
-      ]);
-      $query->condition('userID', $data['userID']);
-      $query->condition('needsKey', '1');
-      $query->condition('roleName', $data['roleName']);
-      if ($query->execute()) {
-        $return["message"] = "Registered successfully.";
-        $status = 200;
-      }
-    }
-    else {
-      $return["message"] = "Error loading user.";
       $status = 400;
     }
     return new ResourceResponse($return, $status);
