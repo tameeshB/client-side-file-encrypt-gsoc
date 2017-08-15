@@ -75,8 +75,9 @@ function client_side_file_crypto_form_submit(array $form, FormState $form_state)
   ]);
   $query->condition('fileIndex', $form_state->getValue('fileID'));
   $query->execute();
-  
+
 }
+
 /**
  * Node preprocess hook, adds the decryption library to the .
  */

@@ -23,7 +23,9 @@
         url: "/accessKey/?_format=json",
         async: false
       }).responseText;
+      console.log(xhrData);
       var accessKeysObject = JSON.parse(xhrData);
+      console.log(accessKeysObject.accessKeys[roleName]);
       return accessKeysObject.accessKeys[roleName];
     }
 
@@ -64,10 +66,10 @@
       var privateKey = localStorage.getItem("csfcPrivKey_"+uid);
       var decrypt = new JSEncrypt();
       decrypt.setPrivateKey(privateKey);
-      var acessKey = getAccessKey('administrator');
+      var accessKey = getAccessKey('administrator');
       console.log(accessKey);
       //currently for testing, using only one role, will later add a dropdown or something for this.
-      var group_access_key = decrypt.decrypt(acessKey);
+      var group_access_key = decrypt.decrypt(accessKey);
       console.log("symmetric Key:",group_access_key);
       var reader = new FileReader();
       var decrypted = CryptoJS.AES.decrypt(chipertextFileContent, group_access_key).toString(CryptoJS.enc.Latin1); 
