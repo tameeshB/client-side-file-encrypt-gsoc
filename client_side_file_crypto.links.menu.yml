@@ -1,0 +1,14 @@
+
+# Key storage menu items definition
+entity.key_storage.collection:
+  title: 'Key storage list'
+  route_name: entity.key_storage.collection
+  description: 'List Key storage entities'
+  parent: system.admin_structure
+  weight: 100
+
+key_storage.admin.structure.settings:
+  title: Key storage settings
+  description: 'Configure Key storage entities'
+  route_name: key_storage.settings
+  parent: system.admin_structure

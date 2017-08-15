@@ -1,0 +1,5 @@
+entity.key_storage.add_form:
+  route_name: entity.key_storage.add_form
+  title: 'Add Key storage'
+  appears_on:
+    - entity.key_storage.collection

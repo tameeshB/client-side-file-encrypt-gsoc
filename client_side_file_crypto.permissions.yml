@@ -1,0 +1,33 @@
+add key storage entities:
+  title: 'Create new Key storage entities'
+
+administer key storage entities:
+  title: 'Administer Key storage entities'
+  description: 'Allow to access the administration form to configure Key storage entities.'
+  restrict access: true
+
+delete key storage entities:
+  title: 'Delete Key storage entities'
+
+edit key storage entities:
+  title: 'Edit Key storage entities'
+
+access key storage overview:
+  title: 'Access the Key storage overview page'
+
+view published key storage entities:
+  title: 'View published Key storage entities'
+
+view unpublished key storage entities:
+  title: 'View unpublished Key storage entities'
+
+view all key storage revisions:
+  title: 'View all Key storage revisions'
+
+revert all key storage revisions:
+  title: 'Revert all Key storage revisions'
+  description: 'Role requires permission <em>view Key storage revisions</em> and <em>edit rights</em> for key storage entities in question or <em>administer key storage entities</em>.'
+
+delete all key storage revisions:
+  title: 'Delete all revisions'
+  description: 'Role requires permission to <em>view Key storage revisions</em> and <em>delete rights</em> for key storage entities in question or <em>administer key storage entities</em>.'

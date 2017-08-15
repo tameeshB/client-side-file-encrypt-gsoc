@@ -1,0 +1,22 @@
+{#
+/**
+ * @file key_storage.html.twig
+ * Default theme implementation to present Key storage data.
+ *
+ * This template is used when viewing Key storage pages.
+ *
+ *
+ * Available variables:
+ * - content: A list of content items. Use 'content' to print all content, or
+ * - attributes: HTML attributes for the container element.
+ *
+ * @see template_preprocess_key_storage()
+ *
+ * @ingroup themeable
+ */
+#}
+<div{{ attributes.addClass('key_storage') }}>
+  {% if content %}
+    {{- content -}}
+  {% endif %}
+</div>

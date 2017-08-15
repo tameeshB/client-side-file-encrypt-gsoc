@@ -1,0 +1,27 @@
+# Key storage routing definition
+key_storage.settings_tab:
+  route_name: key_storage.settings
+  title: 'Settings'
+  base_route: key_storage.settings
+
+entity.key_storage.canonical:
+  route_name: entity.key_storage.canonical
+  base_route: entity.key_storage.canonical
+  title: 'View'
+
+entity.key_storage.edit_form:
+  route_name: entity.key_storage.edit_form
+  base_route: entity.key_storage.canonical
+  title: 'Edit'
+
+entity.key_storage.version_history:
+  route_name: entity.key_storage.version_history
+  base_route: entity.key_storage.canonical
+  title: 'Revisions'
+
+entity.key_storage.delete_form:
+  route_name:  entity.key_storage.delete_form
+  base_route:  entity.key_storage.canonical
+  title: Delete
+  weight: 10
+
