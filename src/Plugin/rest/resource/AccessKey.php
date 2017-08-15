@@ -104,7 +104,7 @@ class AccessKey extends ResourceBase {
       }
       if (count($accessKeys) > 0) {
         $return["message"] = "AccessKey Fetch Complete.";
-        $return["keyCount"] = $accessKeyIndex;
+        $return["keyCount"] = count($accessKeys);
         $return["accessKeys"] = $accessKeys;
         $status = 200;
       }

@@ -2,6 +2,7 @@
 (function ($) {
   // Jquery onload function.
   $(document).ready(function(){
+
     /**
      * Method to return the csrf token
      */
@@ -56,7 +57,6 @@
 
       });
     });
-    ////-----------
   });
   $(document).ajaxStop(function() {
     window.location="/";

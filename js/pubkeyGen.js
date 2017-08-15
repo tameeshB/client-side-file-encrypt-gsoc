@@ -15,6 +15,7 @@
           pom.click();
       }
   }
+
   /**
    * Method to return the csrf token
    */

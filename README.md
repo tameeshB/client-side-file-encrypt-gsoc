@@ -19,7 +19,10 @@ This project will involve building a complete module for Drupal 8 site to make
 
 ### The JavaScript libraries 
 
-There are several JS dependencies that this module is dependent upon, these will need to be downloaded to the /libraries/client_side_file_crypto/ directory in the Drupal root. These should be saved by the name as written below:  
+There are several JS dependencies that this module is dependent upon, these
+will need to be downloaded to the /libraries/client_side_file_crypto/
+directory in the Drupal root. These should be saved by the name as written
+ below:  
 [sjcl.js](http://bitwiseshiftleft.github.io/sjcl/sjcl.js)  
 [jsencrypt.js](http://travistidwell.com/jsencrypt/bin/jsencrypt.js)  
 [cryptojs.js](https://github.com/brix/crypto-js/blob/develop/src/aes.js)  
