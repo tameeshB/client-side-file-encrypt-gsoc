@@ -19,12 +19,15 @@
     $.get("/publicKey/?_format=json", function(xhrPubKey){
       var publicKey = xhrPubKey['publicKey'];
       var privateKey = localStorage.getItem("csfcPrivKey_" + uid);
+      console.log("localStorage priv key:",privateKey);
+      console.log("publicKey:",publicKey)
       var encrypt = new JSEncrypt();
       $.get("/accessKey/pending?_format=json", function(pendingKeysJSON){
         var decrypt = new JSEncrypt();
         decrypt.setPrivateKey(privateKey);
         pendingKeys = pendingKeysJSON['accessKeys'];
         pendingKeys.forEach(function(accessKey) {
+          console.log("ExistingAccessKey",accessKey['access_key']);
           var groupAccessKey = decrypt.decrypt(accessKey['access_key']);
           encrypt.setPublicKey(accessKey['pub_key']);
           var newAccessKey = encrypt.encrypt(groupAccessKey);
@@ -59,6 +62,8 @@
     });
   });
   $(document).ajaxStop(function() {
-    window.location="/";
+    setTimeout(function(){ 
+      // window.location="/";
+    }, 5000);
   });
 })(jQuery, Drupal); 

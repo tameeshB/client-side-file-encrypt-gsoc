@@ -29,39 +29,35 @@
       return accessKeysObject.accessKeys[roleName];
     }
 
-    //Method get file contents from url parameter
-    function getFileAsText(fileUrl){
-      console.log("File to fetch", fileUrl);
-      // read text from URL location
-      $.ajax({
-        url: fileUrl,
-        type: 'get',
-        async: false,
-        success: function(fileContent) {
-          return(fileContent);
-        }
-      });
-    } 
 
     //Get the current node ID for the REST request.
     var nodeID = document.querySelector("link[rel='shortlink']").getAttribute("href").split('/')[2];
     console.log("nodeID:",nodeID);
 
-    //Function to get triggered onclick of the dynamically generated anchors
-    function getFile() {
-      var chipertextFileContent = getFileAsText(this.getAttribute('csfc-file-path'));
-      var fileName =  this.innerHTML;
-      var fileMIMEtype = this.getAttribute('csfc-file-MIME-type');
-      var roleName = this.getAttribute('csfc-file-role');
-      console.log("fileName:",fileName);
-      console.log("MIME:",fileMIMEtype);
-      var decrypted = decryptData(chipertextFileContent,roleName);
-      console.log("clearText: ",decrypted);
-      downloadBlob(decrypted,fileName,fileMIMEtype);
+    /**
+     * File taking in plaintext file parameters and generating and downloading
+     * the file.
+     */
+    function downloadBlob(fileContents,fileName,fileMIMEtype){
+      console.log("downloadBlob called with params:"+fileContents.substring(0,10)+' '+fileName+' '+fileMIMEtype);
+      //checking if file is an image for preview
+      if(fileMIMEtype.includes("image")){
+        var img = document.getElementById("previewImg");
+        var url = img.src.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+      }
+      var fileContents = fileContents.replace('data:' + fileMIMEtype, 'data:application/octet-stream');
+      var downloadLink = document.createElement("a");
+      downloadLink.href = (fileMIMEtype.includes("image"))?url:fileContents;
+      downloadLink.download = fileName;
+      document.body.appendChild(downloadLink);
+      //simulating a click to download
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
     }
 
     //Function taking ciphertext and rolename and returning cleartext.
     function decryptData(ciphertext,roleName){
+      console.log("decryptData called with params:"+ciphertext.substring(0,10)+' '+roleName);
       var chipertextFileContent = ciphertext;
       var privateKey = localStorage.getItem("csfcPrivKey_"+uid);
       var decrypt = new JSEncrypt();
@@ -80,6 +76,44 @@
 
     }
 
+    //Method get file contents from url parameter
+    function getFileAsText(fileUrl){
+      console.log("In getFileAsText: File to fetch", fileUrl);
+      // read text from URL location
+      return $.ajax({
+        url: fileUrl,
+        type: 'GET',
+        async: false,
+        success: function(fileContent) {
+          console.log(fileContent).substring(0,10);
+          // return(fileContent);
+        }
+      }).responseText;
+    } 
+    //  function getCsrfToken() {
+    //   return $.ajax({
+    //     type: "GET",
+    //     url: "/rest/session/token",
+    //     async: false
+    //   }).responseText;
+    // }
+
+    //Function to get triggered onclick of the dynamically generated anchors
+    function getFile() {
+      console.log("in here at getFile");
+      var chipertextFileContent = getFileAsText(this.getAttribute('csfc-file-path'));
+      console.log("in GetFile: "+chipertextFileContent.substring(0,10));
+      var fileName =  this.innerHTML;
+      var fileMIMEtype = this.getAttribute('csfc-file-MIME-type');
+      var roleName = this.getAttribute('csfc-file-role');
+      console.log("fileName:",fileName);
+      console.log("MIME:",fileMIMEtype);
+      var decrypted = decryptData(chipertextFileContent,roleName);
+      console.log("in decryptData: "+decrypted.substring(0,10));
+      console.log("clearText: ",decrypted);
+      downloadBlob(decrypted,fileName,fileMIMEtype);
+    }
+
     //Build image preview
     function imagePreview(imgPath,imgDOMID){
       console.log("imagePreview called with params:"+imgPath+imgDOMID);
@@ -94,26 +128,6 @@
       }
     }
 
-    /**
-     * File taking in plaintext file parameters and generating and downloading
-     * the file.
-     */
-    function downloadBlob(fileContents,fileName,fileMIMEtype){
-      console.log("downloadBlob called with params:"+fileContents.substring(0,10)+' '+fileName+' '+fileMIMEtype);
-      //checking if file is an image for preview
-      if(fileMIMEtype.includes("image")){
-        var img = document.getElementById("previewImg");
-        var url = img.src.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
-      }
-      var fileContents = decrypted.replace('data:' + fileMIMEtype, 'data:application/octet-stream');
-      var downloadLink = document.createElement("a");
-      downloadLink.href = (fileMIMEtype.includes("image"))?url:fileContents;
-      downloadLink.download = fileName;
-      document.body.appendChild(downloadLink);
-      //simulating a click to download
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-    }
 
     //Fetching the file list and appending to the DOM
     $.get("../fileMetadata/"+nodeID+"/?_format=json", function(fileMetaData){
