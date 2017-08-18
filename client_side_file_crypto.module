@@ -114,24 +114,7 @@ function client_side_file_crypto_user_login_submit(&$form, FormState $form_state
  * Implements hook_user_insert
  */
 function client_side_file_crypto_user_insert($account) {
-  db_insert('test')
-    ->fields(array(
-      'test' => $account->id(),
-    ))
-    ->execute();
   $user = \Drupal::entityManager()->getStorage('user')->load($account->id());
-  drupal_set_message($account->id());
-  // var_dump($account->uid);
-//   $Data = db_insert('table_name')
-// ->fields(
-  // array(
-  // 'fid' => $form_state->getValue('img')[0],
-  // 'name' => $form_state->getValue('client_title'),
-  // 'description' => $form_state->getValue('short_desc'),
-  // 'changed' => time(),
-  // 'status' => '1',
-  // )
-// )->execute();
   $values = [];
     $roles = $user->getRoles();
     foreach ($roles as $role) {
