@@ -22,6 +22,7 @@ function client_side_file_crypto_form_user_login_form_alter(&$form, FormState $f
  */
 function client_side_file_crypto_page_attachments(&$page) {
   $user = \Drupal::currentUser();
+  $page['#attached']['library'][] = 'client_side_file_crypto/csfcUpdatePendingKeys';
   $page['#attached']['drupalSettings']['client_side_file_crypto']['uid'] = $user->id();
 }
 
