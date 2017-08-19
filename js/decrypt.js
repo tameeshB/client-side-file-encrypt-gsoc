@@ -31,7 +31,9 @@
 
 
     //Get the current node ID for the REST request.
-    var nodeID = document.querySelector("link[rel='shortlink']").getAttribute("href").split('/')[2];
+    var nodeID = drupalSettings.client_side_file_crypto.nodeid;
+    // if (nodeID ==-1)
+    //   nodeID=null;
     console.log("nodeID:",nodeID);
 
     /**
@@ -130,38 +132,40 @@
 
 
     //Fetching the file list and appending to the DOM
-    $.get("../fileMetadata/"+nodeID+"/?_format=json", function(fileMetaData){
-      console.log(fileMetaData);
-      if(fileMetaData.fileCount!=0){
-    		$(".node__content div[property='schema:text']").append("<h3 class='title'>Encrypted Files</h3>");
-    		var files = fileMetaData.files;
-    		files.forEach(function(fileData){
-    			//get the file name
-    			var dynamicValue = fileData.name;
-    			//create an anchor element
-    			var anc = document.createElement('a');
-    			anc.className = 'csfc-file-field';
-    			anc.innerHTML = dynamicValue;
-    			anc.setAttribute("style","cursor:pointer");
-    			anc.setAttribute("alt","Download File");
-    			anc.setAttribute("csfc-file-path", fileData.path);
-    			anc.setAttribute("csfc-file-ID", fileData.fileID);
-    			anc.setAttribute("csfc-file-role", fileData.roleName);
-    			anc.setAttribute("csfc-file-MIME-type", fileData.MIMEtype);
-    			anc.setAttribute("csfc-file-isImage", fileData.isImage);
-    			encryptedFileList.append(anc);
-    			if(fileData.isImage==1){
-    				encryptedFileList.append("<img src='' class='csfc-img' id='csfc-img-"+fileData.fileID+"'>");
-    				imagePreview(fileData.path,'csfc-img-'+fileData.fileID);
-    				// call decrypt to preview image
-    			}
-    			// binding the function to the onclick event of the dynamically
-    			// generated elements
-    			anc.onclick = getFile;
-    			encryptedFileList.append("<br>");
-    		});
-    	}
-    });
+    if(nodeID!=-1){
+      $.get("../fileMetadata/"+nodeID+"/?_format=json", function(fileMetaData){
+        console.log(fileMetaData);
+        if(fileMetaData.fileCount!=0){
+      		$(".node__content div[property='schema:text']").append("<h3 class='title'>Encrypted Files</h3>");
+      		var files = fileMetaData.files;
+      		files.forEach(function(fileData){
+      			//get the file name
+      			var dynamicValue = fileData.name;
+      			//create an anchor element
+      			var anc = document.createElement('a');
+      			anc.className = 'csfc-file-field';
+      			anc.innerHTML = dynamicValue;
+      			anc.setAttribute("style","cursor:pointer");
+      			anc.setAttribute("alt","Download File");
+      			anc.setAttribute("csfc-file-path", fileData.path);
+      			anc.setAttribute("csfc-file-ID", fileData.fileID);
+      			anc.setAttribute("csfc-file-role", fileData.roleName);
+      			anc.setAttribute("csfc-file-MIME-type", fileData.MIMEtype);
+      			anc.setAttribute("csfc-file-isImage", fileData.isImage);
+      			encryptedFileList.append(anc);
+      			if(fileData.isImage==1){
+      				encryptedFileList.append("<img src='' class='csfc-img' id='csfc-img-"+fileData.fileID+"'>");
+      				imagePreview(fileData.path,'csfc-img-'+fileData.fileID);
+      				// call decrypt to preview image
+      			}
+      			// binding the function to the onclick event of the dynamically
+      			// generated elements
+      			anc.onclick = getFile;
+      			encryptedFileList.append("<br>");
+      		});
+      	}
+      });
+    }
   });
 })(jQuery,Drupal); 
 

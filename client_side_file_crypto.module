@@ -24,17 +24,29 @@ function client_side_file_crypto_page_attachments(&$page) {
   global $base_url;
   $route_match = \Drupal::routeMatch();
   $user = \Drupal::currentUser();
+  $node = $route_match->getParameter('node');
+  $nid = ($node)? $node->id():-1;
+  $routeName = $route_match->getRouteName();
+  $blockedRoutes = [
+    'client_side_file_crypto.newKeys',
+    'client_side_file_crypto.postLogin',
+  ];
+  if(!User::load($user->id())->get('pub_key')->value && $user->id()!=0 && in_array($routeName, $blockedRoutes) ){
+    // user_logout();
+  }
   $page['#attached']['library'][] = 'client_side_file_crypto/csfcUpdatePendingKeys';
   $page['#attached']['drupalSettings']['client_side_file_crypto']['uid'] = $user->id();
+  $page['#attached']['drupalSettings']['client_side_file_crypto']['nodeid'] = $nid;
   $page['#attached']['drupalSettings']['client_side_file_crypto']['baseURL'] = $base_url;
-  $page['#attached']['drupalSettings']['client_side_file_crypto']['routeName'] = $route_match->getRouteName();
+  $page['#attached']['drupalSettings']['client_side_file_crypto']['routeName'] = $routeName;
 }
 
 /**
  * Implements hook_form_FORM_ID_alter().
+ *
+ * Attaches post submission method to node form.
  */
-function client_side_file_crypto_form_node_article_form_alter(&$form, &$form_state, $form_id) {
-  // $form['#submit'][] = 'client_side_file_crypto_node_article_form_submit';
+function client_side_file_crypto_form_node_form_alter(&$form, FormState $form_state, $form_id) {
   $form['#attached'] = [
     'library' => [
       'client_side_file_crypto/csfcEncrypt',
@@ -53,14 +65,23 @@ function client_side_file_crypto_form_node_article_form_alter(&$form, &$form_sta
     '#title' => t('Encrypted file ID'),
     '#weight' => 14,
   ];
-}
 
-/**
- * Implements hook_form_FORM_ID_alter().
- *
- * Attaches post submission method to node form.
- */
-function client_side_file_crypto_form_node_form_alter(&$form, FormState $form_state, $form_id) {
+  $current_user = \Drupal::currentUser();
+  $roles = $current_user->getRoles();
+  $roleOptions = [];
+  foreach ($roles as $key => $value) {
+    $roleOptions[$value] = t($value);
+  }
+  $form['roleSelect'] = [
+    '#type' => 'select', 
+    '#id' => 'roleSelect',
+    '#title' => t('Encrypt for role'), 
+    '#default_value' => $roles[0],
+    '#options' => $roleOptions,
+    '#weight' => 13,
+    '#description' => t('Select role to encrypt for.'),
+  ];
+
   foreach (array_keys($form['actions']) as $action) {
     if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
       $form['actions'][$action]['#submit'][] = 'client_side_file_crypto_form_submit';
@@ -84,7 +105,7 @@ function client_side_file_crypto_form_submit(array $form, FormState $form_state)
 }
 
 /**
- * Node preprocess hook, adds the decryption library to the .
+ * Node preprocess hook, adds the decryption library to the nodes.
  */
 function client_side_file_crypto_preprocess_node(&$variables) {
   $node = $variables['node'];
@@ -140,7 +161,6 @@ function client_side_file_crypto_user_insert($account) {
     $query->values($record);
   }
   $query->execute();
-
 }
 
 /**

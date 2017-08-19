@@ -10,17 +10,15 @@
 	      async: false
 	    }).responseText;
 	}
-
-  // Jquery onload function.
+  
   var file = undefined;
   $(document).ready(function(){
   	$(".node-form").attr("action", "/node/add/"+$(".node-form").attr('data-drupal-selector').split("-")[1]);
     var uid = drupalSettings.client_side_file_crypto.uid;
   	$("#cryptoFields").change(function(e){
   		e.preventDefault();
-  		//currently only for first file field in DOM, later add a forEach loop
   		file = e.target.files[0];
-  		var role='administrator';
+  		var role=$("#roleSelect").val();
   		console.log(file.size);
   		console.log(file.type);
   		console.log(file.name);

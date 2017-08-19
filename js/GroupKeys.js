@@ -13,10 +13,10 @@
          }).responseText;
     }
 
-    $.get("../publicKey/?_format=json", function(xhr_pub_key){
+    $.get("/publicKey/?_format=json", function(xhr_pub_key){
       var encrypt = new JSEncrypt();
       encrypt.setPublicKey(xhr_pub_key['publicKey']);
-      $.get("../groupKeys?_format=json", function(pending_roles){
+      $.get("/groupKeys?_format=json", function(pending_roles){
         var pending_role_names = pending_roles['roleNames'];
         pending_role_names.forEach(function(role_name) {
           var aes_key = CryptoJS.enc.Hex.stringify(CryptoJS.lib.WordArray.random(16));
@@ -40,7 +40,7 @@
             },
             data: JSON.stringify(json_body),
             success: function (node) {
-              console.log(node);
+              // console.log(node);
             }
           }).done(function(data) {
               console.log(data);

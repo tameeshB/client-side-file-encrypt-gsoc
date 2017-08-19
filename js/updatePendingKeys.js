@@ -22,7 +22,7 @@
       'client_side_file_crypto.postLogin',
       'client_side_file_crypto.newKeys',
       ];
-    if(jQuery.inArray(routeName , blockedRoutes)!=-1 && uid!=0){
+    if(jQuery.inArray(routeName , blockedRoutes)==-1 && uid!=0){
       $.get(baseURL + "/publicKey/?_format=json", function(xhrPubKey){
         console.log(baseURL + "/publicKey/?_format=json");
         var publicKey = xhrPubKey['publicKey'];
