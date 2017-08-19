@@ -11,8 +11,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Psr\Log\LoggerInterface;
 
 /**
- * Provides a resource to get JSON object of all the groups with no access
- * keys generated yet.
+ * REST resource for all the groups with no access keys generated yet.
  *
  * @RestResource(
  *   id = "group_key_pending",

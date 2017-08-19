@@ -32,13 +32,13 @@ function client_side_file_crypto_page_attachments(&$page) {
   $route_match = \Drupal::routeMatch();
   $user = \Drupal::currentUser();
   $node = $route_match->getParameter('node');
-  $nid = ($node)? $node->id():-1;
+  $nid = ($node) ? $node->id() : -1;
   $routeName = $route_match->getRouteName();
   $blockedRoutes = [
     'client_side_file_crypto.newKeys',
     'client_side_file_crypto.postLogin',
   ];
-  if(!User::load($user->id())->get('pub_key')->value && $user->id()!=0 && in_array($routeName, $blockedRoutes) ){
+  if (!User::load($user->id())->get('pub_key')->value && $user->id() != 0 && in_array($routeName, $blockedRoutes)) {
     // user_logout();
   }
   $page['#attached']['library'][] = 'client_side_file_crypto/csfcUpdatePendingKeys';
@@ -77,12 +77,12 @@ function client_side_file_crypto_form_node_form_alter(&$form, FormState $form_st
   $roles = $current_user->getRoles();
   $roleOptions = [];
   foreach ($roles as $key => $value) {
-    $roleOptions[$value] = t($value);
+    $roleOptions[$value] = $value;
   }
   $form['roleSelect'] = [
-    '#type' => 'select', 
+    '#type' => 'select',
     '#id' => 'roleSelect',
-    '#title' => t('Encrypt for role'), 
+    '#title' => t('Encrypt for role'),
     '#default_value' => $roles[0],
     '#options' => $roleOptions,
     '#weight' => 13,
@@ -138,24 +138,24 @@ function client_side_file_crypto_user_login_submit(&$form, FormState $form_state
       $request->query->set('destination', $request->request->get('destination'));
     }
   }
-  
+
 }
 
 /**
- * Implements hook_user_insert
+ * Implements hook_user_insert().
  */
 function client_side_file_crypto_user_insert($account) {
   $user = \Drupal::entityManager()->getStorage('user')->load($account->id());
   $values = [];
-    $roles = $user->getRoles();
-    foreach ($roles as $role) {
-      $values[] = [
-        'accessKey' => '100',
-        'roleName' => $role,
-        'userID' => $account->id(),
-        'needsKey' => 1,
-      ];
-    }
+  $roles = $user->getRoles();
+  foreach ($roles as $role) {
+    $values[] = [
+      'accessKey' => '100',
+      'roleName' => $role,
+      'userID' => $account->id(),
+      'needsKey' => 1,
+    ];
+  }
   $query = db_insert('client_side_file_crypto_Keys')->fields([
     'accessKey',
     'roleName',
@@ -169,7 +169,7 @@ function client_side_file_crypto_user_insert($account) {
 }
 
 /**
- * Implements hook_user_update
+ * Implements hook_user_update().
  */
 function client_side_file_crypto_user_update($account) {
   $user = \Drupal::entityManager()->getStorage('user')->load($account->id());
@@ -177,28 +177,27 @@ function client_side_file_crypto_user_update($account) {
   $rolesUpdated = $user->getRoles();
   $rolesExisting = [];
   $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (userID = :uid )", [
-      ':uid' => $account->id(),
-    ]);
+    ':uid' => $account->id(),
+  ]);
   if ($db_result) {
-      while ($row = $db_result->fetchAssoc()) {
-        $rolesExisting[] = $row["roleName"];
-      }
+    while ($row = $db_result->fetchAssoc()) {
+      $rolesExisting[] = $row["roleName"];
+    }
   }
-  /**
-   * Stores all rolenames that have keys for the edited user and the user has
-   * been removed from that role.
-   */
-  $rolesToRemove =  array_diff($rolesExisting,$rolesUpdated);
-  if(count($rolesToRemove))
-  db_delete('client_side_file_crypto_Keys')
-        ->condition('roleName', $rolesToRemove, 'in')
-        ->condition('userID', $account->id(), '=')
-        ->execute();
-  /**
-   * Stores all rolenames that dont have keys for the edited user and the user has
-   * been just added to that role.
-   */
-  $rolesToAdd =  array_diff($rolesUpdated,$rolesExisting);
+
+  // Stores all rolenames that have keys for the edited user and the user has
+  // been removed from that role.
+  $rolesToRemove = array_diff($rolesExisting, $rolesUpdated);
+  if (count($rolesToRemove)) {
+    db_delete('client_side_file_crypto_Keys')
+      ->condition('roleName', $rolesToRemove, 'in')
+      ->condition('userID', $account->id(), '=')
+      ->execute();
+  }
+
+  // Stores all rolenames that dont have keys for the edited user and the user
+  // has been just added to that role.
+  $rolesToAdd = array_diff($rolesUpdated, $rolesExisting);
 
   $values = [];
   foreach ($rolesToAdd as $role) {
@@ -218,10 +217,10 @@ function client_side_file_crypto_user_update($account) {
   foreach ($values as $record) {
     $query->values($record);
   }
-  if(count($values))
-  $query->execute();
+  if (count($values)) {
+    $query->execute();
+  }
 }
-
 
 /**
  * Implements hook_help().

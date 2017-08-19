@@ -80,7 +80,7 @@ class ClientSideFileCryptoController extends ControllerBase {
     $output['errMessage'] = [
       '#type' => 'markup',
       '#id' => 'errMessage',
-      '#markup' => "<div id ='errMessage_'>".$this->t('Upload PrivateKey.pem here.')."</div>",
+      '#markup' => "<div id ='errMessage_'>" . $this->t('Upload PrivateKey.pem here.') . "</div>",
     ];
     return $output;
   }

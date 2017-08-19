@@ -101,7 +101,7 @@ class AccessKeyPending extends ResourceBase {
         $accessKey = $this->getAccessKey($row['roleName']);
         if ($accessKey != -1) {
           $thisUserPubKey = $this->getPubKey($row['userID']);
-          if($thisUserPubKey){
+          if ($thisUserPubKey) {
             $pendingKeys[] = [
               'index' => $row['keyIndex'],
               'uid' => $row['userID'],
