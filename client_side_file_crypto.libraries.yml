@@ -39,3 +39,13 @@ csfcDecrypt:
   dependencies:
   - core/jquery
   - core/drupalSettings
+csfcRestoreKeys:
+  version: 1.x
+  js:
+    js/restore.js: {}
+    /libraries/client_side_file_crypto/sjcl.js: {}
+    /libraries/client_side_file_crypto/jsencrypt.js: {}
+    /libraries/client_side_file_crypto/cryptojs.js: {}
+  dependencies:
+  - core/jquery
+  - core/drupalSettings

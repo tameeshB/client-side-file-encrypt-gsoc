@@ -62,11 +62,27 @@ class ClientSideFileCryptoController extends ControllerBase {
    * @return array
    *   returns the render array for the page to reload keys.
    */
-  public function reloadKeys() {
-    return [
+  public function restoreKeys() {
+    $output['head'] = [
       '#type' => 'markup',
       '#markup' => $this->t('You can reload the private key on the browser by uploading the .pem file here'),
+      '#attached' => [
+        'library' => [
+          'client_side_file_crypto/csfcRestoreKeys',
+        ],
+      ],
     ];
+    $output['privKey'] = [
+      '#type' => 'file',
+      '#title' => t('Private Key'),
+      '#id' => 'privKey',
+    ];
+    $output['errMessage'] = [
+      '#type' => 'markup',
+      '#id' => 'errMessage',
+      '#markup' => "<div id ='errMessage_'>".$this->t('Upload PrivateKey.pem here.')."</div>",
+    ];
+    return $output;
   }
 
 }
