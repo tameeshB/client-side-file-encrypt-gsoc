@@ -26,6 +26,9 @@
       $.get(baseURL + "/publicKey/?_format=json", function(xhrPubKey){
         console.log(baseURL + "/publicKey/?_format=json");
         var publicKey = xhrPubKey['publicKey'];
+        if(!publicKey && uid!=0){
+          window.location = baseURL + '/user/logout/';
+        }
         var privateKey = localStorage.getItem("csfcPrivKey_" + uid);
         console.log("localStorage priv key:",privateKey);
         console.log("publicKey:",publicKey)
