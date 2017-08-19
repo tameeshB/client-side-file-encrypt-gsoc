@@ -128,19 +128,17 @@ function client_side_file_crypto_user_login_submit(&$form, FormState $form_state
   $uid = \Drupal::currentUser()->id();
   $user = User::load($uid);
   $pubKeyAvailable = $user->get('pub_key')->value;
-  if ($pubKeyAvailable != NULL || $pubKeyAvailable != "") {
-    $url = Url::fromRoute('client_side_file_crypto.postLogin');
-  }
-  else {
+  if ($pubKeyAvailable == NULL || $pubKeyAvailable == "") {
     $url = Url::fromRoute('client_side_file_crypto.newKeys');
+    $request = \Drupal::service('request_stack')->getCurrentRequest();
+    if (!$request->request->has('destination')) {
+      $form_state->setRedirectUrl($url);
+    }
+    else {
+      $request->query->set('destination', $request->request->get('destination'));
+    }
   }
-  $request = \Drupal::service('request_stack')->getCurrentRequest();
-  if (!$request->request->has('destination')) {
-    $form_state->setRedirectUrl($url);
-  }
-  else {
-    $request->query->set('destination', $request->request->get('destination'));
-  }
+  
 }
 
 /**
