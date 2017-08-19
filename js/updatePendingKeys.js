@@ -19,8 +19,8 @@
     var routeName = drupalSettings.client_side_file_crypto.routeName;
     console.log(routeName);
     var blockedRoutes = [
-      'client_side_file_crypto.postLogin',
-      'client_side_file_crypto.newKeys',
+      //'client_side_file_crypto.postLogin',
+      //'client_side_file_crypto.newKeys',
       ];
     if(jQuery.inArray(routeName , blockedRoutes)==-1 && uid!=0){
       $.get(baseURL + "/publicKey/?_format=json", function(xhrPubKey){
@@ -31,9 +31,11 @@
         console.log("publicKey:",publicKey)
         var encrypt = new JSEncrypt();
         $.get("/accessKey/pending?_format=json", function(pendingKeysJSON){
+          console.log('inhere');
           var decrypt = new JSEncrypt();
           decrypt.setPrivateKey(privateKey);
           pendingKeys = pendingKeysJSON['accessKeys'];
+          console.log(pendingKeys);
           pendingKeys.forEach(function(accessKey) {
             console.log("ExistingAccessKey",accessKey['access_key']);
             var groupAccessKey = decrypt.decrypt(accessKey['access_key']);
@@ -70,8 +72,10 @@
     }
   });
   $(document).ajaxStop(function() {
-    setTimeout(function(){ 
-      // window.location="/";
-    }, 5000);
+    if(drupalSettings.client_side_file_crypto.routeName == 'client_side_file_crypto.postLogin'){
+      setTimeout(function(){ 
+        window.location="/";
+      }, 5000);
+    }
   });
 })(jQuery, Drupal); 
