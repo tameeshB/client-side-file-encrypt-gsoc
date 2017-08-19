@@ -102,7 +102,7 @@ class AccessKey extends ResourceBase {
       while ($row = $db_result->fetchAssoc()) {
         $accessKeys[$row["roleName"]] = $row["accessKey"];
       }
-      if (count($accessKeys) > 0) {
+      if (!empty($accessKeys)) {
         $return["message"] = "AccessKey Fetch Complete.";
         $return["keyCount"] = count($accessKeys);
         $return["accessKeys"] = $accessKeys;
