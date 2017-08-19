@@ -100,15 +100,19 @@ class AccessKeyPending extends ResourceBase {
       while ($row = $db_result->fetchAssoc()) {
         $accessKey = $this->getAccessKey($row['roleName']);
         if ($accessKey != -1) {
-          $pendingKeys[] = [
-            'index' => $row['keyIndex'],
-            'uid' => $row['userID'],
-            'role' => $row['roleName'],
-            'pub_key' => $this->getPubKey($row['userID']),
-            'access_key' => $accessKey,
-          ];
+          $thisUserPubKey = $this->getPubKey($row['userID']);
+          if($thisUserPubKey){
+            $pendingKeys[] = [
+              'index' => $row['keyIndex'],
+              'uid' => $row['userID'],
+              'role' => $row['roleName'],
+              'pub_key' => $thisUserPubKey,
+              'access_key' => $accessKey,
+            ];
+          }
         }
       }
+      $return['uid'] = $current_user->id();
       $return["message"] = "Pending Access Keys fetched successfully.";
       $return["keyCount"] = count($pendingKeys);
       $return["accessKeys"] = $pendingKeys;
