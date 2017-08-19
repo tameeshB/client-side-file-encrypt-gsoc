@@ -41,7 +41,7 @@
      * the file.
      */
     function downloadBlob(fileContents,fileName,fileMIMEtype){
-      console.log("downloadBlob called with params:"+fileContents.substring(0,10)+' '+fileName+' '+fileMIMEtype);
+      console.log("downloadBlob called with params:"+fileContents.substring(0,70)+' '+fileName+' '+fileMIMEtype);
       //checking if file is an image for preview
       if(fileMIMEtype.includes("image")){
         var img = document.getElementById("previewImg");
@@ -59,19 +59,22 @@
 
     //Function taking ciphertext and rolename and returning cleartext.
     function decryptData(ciphertext,roleName){
-      console.log("decryptData called with params:"+ciphertext.substring(0,10)+' '+roleName);
+      console.log("decryptData called with params:"+ciphertext.substring(0,70)+' '+roleName);
       var chipertextFileContent = ciphertext;
       var privateKey = localStorage.getItem("csfcPrivKey_"+uid);
       var decrypt = new JSEncrypt();
       decrypt.setPrivateKey(privateKey);
-      var accessKey = getAccessKey('administrator');
+      var accessKey = getAccessKey(roleName);
+      if(!accessKey){
+        $("<br><font color='#FF0000'>AccessKey unavailable for selected role.<br>Please try again later.</font>").insertAfter(".csfc-file-field[csfc-file-role='"+roleName+"']");
+      }
       console.log(accessKey);
       //currently for testing, using only one role, will later add a dropdown or something for this.
       var group_access_key = decrypt.decrypt(accessKey);
       console.log("symmetric Key:",group_access_key);
       var reader = new FileReader();
       var decrypted = CryptoJS.AES.decrypt(chipertextFileContent, group_access_key).toString(CryptoJS.enc.Latin1); 
-      console.log("clearText: ",decrypted);
+      console.log("clearText: ",decrypted.substring(0,70));
       // downloadBlob(decrypted,fileName,fileMIMEtype);
       return decrypted;
       
@@ -87,32 +90,25 @@
         type: 'GET',
         async: false,
         success: function(fileContent) {
-          console.log(fileContent).substring(0,10);
+          console.log(fileContent.substring(0,70));
           // return(fileContent);
         }
       }).responseText;
     } 
-    //  function getCsrfToken() {
-    //   return $.ajax({
-    //     type: "GET",
-    //     url: "/rest/session/token",
-    //     async: false
-    //   }).responseText;
-    // }
 
     //Function to get triggered onclick of the dynamically generated anchors
     function getFile() {
       console.log("in here at getFile");
       var chipertextFileContent = getFileAsText(this.getAttribute('csfc-file-path'));
-      console.log("in GetFile: "+chipertextFileContent.substring(0,10));
+      console.log("in GetFile: "+chipertextFileContent.substring(0,70));
       var fileName =  this.innerHTML;
       var fileMIMEtype = this.getAttribute('csfc-file-MIME-type');
       var roleName = this.getAttribute('csfc-file-role');
       console.log("fileName:",fileName);
       console.log("MIME:",fileMIMEtype);
       var decrypted = decryptData(chipertextFileContent,roleName);
-      console.log("in decryptData: "+decrypted.substring(0,10));
-      console.log("clearText: ",decrypted);
+      console.log("in decryptData: "+decrypted.substring(0,70));
+      console.log("clearText: ",decrypted.substring(0,70));
       downloadBlob(decrypted,fileName,fileMIMEtype);
     }
 
@@ -141,10 +137,11 @@
       		files.forEach(function(fileData){
       			//get the file name
       			var dynamicValue = fileData.name;
+            console.log("fileName:",dynamicValue.slice(10));
       			//create an anchor element
       			var anc = document.createElement('a');
       			anc.className = 'csfc-file-field';
-      			anc.innerHTML = dynamicValue;
+      			anc.innerHTML = dynamicValue.slice(10);
       			anc.setAttribute("style","cursor:pointer");
       			anc.setAttribute("alt","Download File");
       			anc.setAttribute("csfc-file-path", fileData.path);
