@@ -109,8 +109,10 @@ class AccessKey extends ResourceBase {
         $status = 200;
       }
       else {
-        $return["message"] = "Unable to fetch keys";
-        $status = 204;
+        $return["message"] = "Empty set.";
+        $return["keyCount"] = 0;
+        $return["accessKeys"] = [];
+        $status = 200;
       }
 
     }
