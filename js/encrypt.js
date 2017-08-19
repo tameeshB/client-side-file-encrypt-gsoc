@@ -14,7 +14,7 @@
   // Jquery onload function.
   var file = undefined;
   $(document).ready(function(){
-  	$("#node-article-form").attr("action", "/node/add/article");
+  	$(".node-form").attr("action", "/node/add/"+$(".node-form").attr('data-drupal-selector').split("-")[1]);
     var uid = drupalSettings.client_side_file_crypto.uid;
   	$("#cryptoFields").change(function(e){
   		e.preventDefault();

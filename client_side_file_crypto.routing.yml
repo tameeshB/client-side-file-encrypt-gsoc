@@ -14,11 +14,11 @@ client_side_file_crypto.postLogin:
   requirements:
     _permission: 'access content'
     _user_is_logged_in: 'TRUE'
-client_side_file_crypto.reloadKeys:
-  path: '/user/reloadKey'
+client_side_file_crypto.restoreKeys:
+  path: '/user/restoreKey'
   defaults:
-    _controller: '\Drupal\client_side_file_crypto\Controller\ClientSideFileCryptoController::reloadKeys'
-    _title: 'Reload the private key'
+    _controller: '\Drupal\client_side_file_crypto\Controller\ClientSideFileCryptoController::restoreKeys'
+    _title: 'Restore the private key'
   requirements:
     _permission: 'access content'
     _user_is_logged_in: 'TRUE'

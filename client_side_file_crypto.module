@@ -21,16 +21,20 @@ function client_side_file_crypto_form_user_login_form_alter(&$form, FormState $f
  * Implements hook_page_attachments().
  */
 function client_side_file_crypto_page_attachments(&$page) {
+  global $base_url;
+  $route_match = \Drupal::routeMatch();
   $user = \Drupal::currentUser();
   $page['#attached']['library'][] = 'client_side_file_crypto/csfcUpdatePendingKeys';
   $page['#attached']['drupalSettings']['client_side_file_crypto']['uid'] = $user->id();
+  $page['#attached']['drupalSettings']['client_side_file_crypto']['baseURL'] = $base_url;
+  $page['#attached']['drupalSettings']['client_side_file_crypto']['routeName'] = $route_match->getRouteName();
 }
 
 /**
  * Implements hook_form_FORM_ID_alter().
  */
 function client_side_file_crypto_form_node_article_form_alter(&$form, &$form_state, $form_id) {
-  $form['#submit'][] = 'client_side_file_crypto_node_article_form_submit';
+  // $form['#submit'][] = 'client_side_file_crypto_node_article_form_submit';
   $form['#attached'] = [
     'library' => [
       'client_side_file_crypto/csfcEncrypt',
@@ -65,7 +69,7 @@ function client_side_file_crypto_form_node_form_alter(&$form, FormState $form_st
 }
 
 /**
- * Form submission handler for node_article_form().
+ * Form submission handler for node_form_submit().
  *
  * Encrypted file upload link for new node.
  */

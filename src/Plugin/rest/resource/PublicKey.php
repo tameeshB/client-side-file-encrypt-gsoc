@@ -126,6 +126,7 @@ class PublicKey extends ResourceBase {
       // POST input Data validation.
       if ($user->set('pub_key', $data['publicKey'])->save()) {
         $return["message"] = "Successfully added.";
+        $return["uid"] = $this->currentUser->id();
         $status = 200;
       }
       else {

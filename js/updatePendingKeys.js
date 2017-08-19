@@ -15,51 +15,59 @@
      }
 
     var uid = drupalSettings.client_side_file_crypto.uid;
-    ////-----------
-    $.get("/publicKey/?_format=json", function(xhrPubKey){
-      var publicKey = xhrPubKey['publicKey'];
-      var privateKey = localStorage.getItem("csfcPrivKey_" + uid);
-      console.log("localStorage priv key:",privateKey);
-      console.log("publicKey:",publicKey)
-      var encrypt = new JSEncrypt();
-      $.get("/accessKey/pending?_format=json", function(pendingKeysJSON){
-        var decrypt = new JSEncrypt();
-        decrypt.setPrivateKey(privateKey);
-        pendingKeys = pendingKeysJSON['accessKeys'];
-        pendingKeys.forEach(function(accessKey) {
-          console.log("ExistingAccessKey",accessKey['access_key']);
-          var groupAccessKey = decrypt.decrypt(accessKey['access_key']);
-          encrypt.setPublicKey(accessKey['pub_key']);
-          var newAccessKey = encrypt.encrypt(groupAccessKey);
-          console.log(groupAccessKey);
-          console.log(newAccessKey);
-          if(!newAccessKey || !groupAccessKey){
-            console.log('Key generation error');
-          } else {
-            var jsonBody = {
-              "accessKey" : newAccessKey,
-              "roleName" : accessKey['role'],
-              "userID" : accessKey['uid'],
-            };
-            jQuery.ajax({
-              url: '/accessKey/?_format=json',
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/hal+json',
-                'X-CSRF-Token': getCsrfToken()
-              },
-              data: JSON.stringify(jsonBody),
-              success: function (node) {
-                // console.log(node);
-              }
-            }).done(function(data) {
-                console.log(data);
-            });
-          }
+    var baseURL = drupalSettings.client_side_file_crypto.baseURL;
+    var routeName = drupalSettings.client_side_file_crypto.routeName;
+    console.log(routeName);
+    var blockedRoutes = [
+      'client_side_file_crypto.postLogin',
+      'client_side_file_crypto.newKeys',
+      ];
+    if(jQuery.inArray(routeName , blockedRoutes)!=-1 && uid!=0){
+      $.get(baseURL + "/publicKey/?_format=json", function(xhrPubKey){
+        console.log(baseURL + "/publicKey/?_format=json");
+        var publicKey = xhrPubKey['publicKey'];
+        var privateKey = localStorage.getItem("csfcPrivKey_" + uid);
+        console.log("localStorage priv key:",privateKey);
+        console.log("publicKey:",publicKey)
+        var encrypt = new JSEncrypt();
+        $.get("/accessKey/pending?_format=json", function(pendingKeysJSON){
+          var decrypt = new JSEncrypt();
+          decrypt.setPrivateKey(privateKey);
+          pendingKeys = pendingKeysJSON['accessKeys'];
+          pendingKeys.forEach(function(accessKey) {
+            console.log("ExistingAccessKey",accessKey['access_key']);
+            var groupAccessKey = decrypt.decrypt(accessKey['access_key']);
+            encrypt.setPublicKey(accessKey['pub_key']);
+            var newAccessKey = encrypt.encrypt(groupAccessKey);
+            console.log(groupAccessKey);
+            console.log(newAccessKey);
+            if(!newAccessKey || !groupAccessKey){
+              console.log('Key generation error');
+            } else {
+              var jsonBody = {
+                "accessKey" : newAccessKey,
+                "roleName" : accessKey['role'],
+                "userID" : accessKey['uid'],
+              };
+              jQuery.ajax({
+                url: '/accessKey/?_format=json',
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/hal+json',
+                  'X-CSRF-Token': getCsrfToken()
+                },
+                data: JSON.stringify(jsonBody),
+                success: function (node) {
+                  // console.log(node);
+                }
+              }).done(function(data) {
+                  console.log(data);
+              });
+            }
+          });
         });
-
       });
-    });
+    }
   });
   $(document).ajaxStop(function() {
     setTimeout(function(){ 

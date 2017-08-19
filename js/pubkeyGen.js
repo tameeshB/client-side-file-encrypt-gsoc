@@ -26,11 +26,25 @@
          async: false
        }).responseText;
   }
+
+  //method to return, if any existing public keys
+  function getPublicKey(uid){
+    var xhrData = $.ajax({
+      type: "GET",
+      url: "/publicKey/"+uid+"/?_format=json",
+      async: false
+    }).responseText;
+    console.log(xhrData);
+    var pubKeyObject = JSON.parse(xhrData);
+    console.log(pubKeyObject.publicKey);
+    return pubKeyObject.publicKey;
+  }
+
   /**
    * Generating group keys for keys with no access keys generated yet.
    */
   function generateGroupKeys(publicKey){
-    $.get("../groupKeys?_format=json", function(pendingRoles){
+    $.get("/groupKeys?_format=json", function(pendingRoles){
       var pendingRoleNames = pendingRoles['roleNames'];
       pendingRoleNames.forEach(function(roleName) {
         var encrypt = new JSEncrypt();
@@ -46,7 +60,7 @@
           "roleName" : roleName,
           "userID" : pendingRoles['userID'],
         };
-        console.log(jsonBody);
+        console.log("JSON BODY:",jsonBody);
         jQuery.ajax({
           url: '/accessKey/?_format=json',
           method: 'POST',
@@ -68,37 +82,46 @@
 
   $(document).ready(function(){
     var uid = drupalSettings.client_side_file_crypto.uid;
-    console.log(uid);
-    //default pubkey size for now = 1024
-    var keySize = parseInt(1024);
-    var crypt = new JSEncrypt({default_key_size: keySize});
-    crypt.getKey();
-    console.log("New keys generated");
-    var privateKey = crypt.getPrivateKey();
-    var publicKey = crypt.getPublicKey();
-    console.log(privateKey);
-    console.log(publicKey);
-    generateGroupKeys(publicKey);
-    localStorage.setItem("csfcPubKey_" + uid, publicKey);
-    localStorage.setItem("csfcPrivKey_" + uid, privateKey);
-    var data_ = {
-      'publicKey' : publicKey,
-    };
-    jQuery.ajax({
-      url: '/publicKey?_format=json',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/hal+json',
-        'X-CSRF-Token': getCsrfToken(),
-      },
-      data: JSON.stringify(data_),
-      success: function (node) {
-        console.log(node);
-      }
-    });
-    $("#key-status").text("Key generated.");
-    $("#more-info").text("A private key has been downloaded to your computer that you will need to keep to keep safe in case your browser data gets wiped and to access the encrypted files on other devices. In case you need to restore the keys you can do it at /reloadPrivateKey");
-    download('PrivateKey.pem', privateKey);
+    var ExistingPubKey = getPublicKey(uid);
+    console.log(ExistingPubKey);
+    if(!ExistingPubKey && !localStorage.getItem("csfcPrivKey_" + uid)){
+      console.log(uid);
+      //default pubkey size for now = 1024
+      var keySize = parseInt(1024);
+      var crypt = new JSEncrypt({default_key_size: keySize});
+      crypt.getKey();
+      console.log("New keys generated");
+      var privateKey = crypt.getPrivateKey();
+      var publicKey = crypt.getPublicKey();
+      console.log(privateKey);
+      console.log(publicKey);
+      generateGroupKeys(publicKey);
+      localStorage.setItem("csfcPubKey_" + uid, publicKey);
+      localStorage.setItem("csfcPrivKey_" + uid, privateKey);
+      var data_ = {
+        'publicKey' : publicKey,
+      };
+      console.log("JSON BODY:",data_);
+
+      jQuery.ajax({
+        url: '/publicKey?_format=json',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/hal+json',
+          'X-CSRF-Token': getCsrfToken(),
+        },
+        data: JSON.stringify(data_),
+        success: function (node) {
+          console.log(node);
+        }
+      });
+      $("#key-status").text("Key generated.");
+      $("#more-info").text("A private key has been downloaded to your computer that you will need to keep to keep safe in case your browser data gets wiped and to access the encrypted files on other devices. In case you need to restore the keys you can do it at /restoreKeys");
+      download('PrivateKey.pem', privateKey);
+    } else {
+      $("#key-status").text("Key already generated!");
+      $("#more-info").text("A key pair has already been generated for this user.");
+    }
   });
   $(document).ajaxStop(function() {
     // window.location="/";
