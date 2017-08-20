@@ -3,6 +3,8 @@
 namespace Drupal\client_side_file_crypto\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Url;
+use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
  * Controller class extending ControllerBase for module's API endpoints.
@@ -55,6 +57,19 @@ class ClientSideFileCryptoController extends ControllerBase {
     ];
     return $output;
   }
+
+
+  /**
+   * Display the markup.
+   *
+   * @return array
+   *   returns the render array for the page to redirect to post login.
+   */
+  public function postKeyGenRedirect() {
+    drupal_flush_all_caches();
+    return $this->redirect('user.page');
+  }
+
 
   /**
    * Display the markup.

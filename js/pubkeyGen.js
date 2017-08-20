@@ -118,7 +118,7 @@
       });
       $("#key-status").text("Key generated.");
       $("#more-info").text("A private key has been downloaded to your computer that you will need to keep to keep safe in case your browser data gets wiped and to access the encrypted files on other devices. In case you need to restore the keys you can do it at /restoreKeys");
-      $("#more-info").append("<br><font color='#FF0000'>Key requests have been put up for each of your roles.<br>You will only be able to access the encrypted features once another user with the keys logs in and generated keys for you.<br>You will need to wait until then. </font><br><a href='"+baseURL+"'>Go to home.</a>");
+      $("#more-info").append("<br><font color='#FF0000'>Key requests have been put up for each of your roles.<br>You will only be able to access the encrypted features once another user with the keys logs in and generated keys for you.<br>You will need to wait until then. </font><br><a href='"+baseURL+"/user/keyGenRedirect'>Go to home.</a>");
       download('PrivateKey.pem', privateKey);
     } else {
       $("#key-status").text("Key already generated!");

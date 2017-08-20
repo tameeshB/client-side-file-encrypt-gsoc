@@ -26,7 +26,7 @@
       $.get(baseURL + "/publicKey/?_format=json", function(xhrPubKey){
         console.log(baseURL + "/publicKey/?_format=json");
         var publicKey = xhrPubKey['publicKey'];
-        if(!publicKey && uid!=0){
+        if(!publicKey && uid != 0 && routeName != 'client_side_file_crypto.newKeys'){
           window.location = baseURL + '/user/logout/';
         }
         var privateKey = localStorage.getItem("csfcPrivKey_" + uid);
