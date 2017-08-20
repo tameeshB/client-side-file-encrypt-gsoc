@@ -3,8 +3,6 @@
 namespace Drupal\client_side_file_crypto\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Url;
-use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
  * Controller class extending ControllerBase for module's API endpoints.
@@ -58,7 +56,6 @@ class ClientSideFileCryptoController extends ControllerBase {
     return $output;
   }
 
-
   /**
    * Display the markup.
    *
@@ -69,7 +66,6 @@ class ClientSideFileCryptoController extends ControllerBase {
     drupal_flush_all_caches();
     return $this->redirect('user.page');
   }
-
 
   /**
    * Display the markup.
