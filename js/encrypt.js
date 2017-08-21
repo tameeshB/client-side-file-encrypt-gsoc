@@ -19,23 +19,15 @@
   		e.preventDefault();
   		file = e.target.files[0];
   		var role=$("#roleSelect").val();
-  		console.log(file.size);
-  		console.log(file.type);
-  		console.log(file.name);
   		var fileName = "encrypted_" + file.name;
-  		console.log("fileName:", fileName);
       $.get("/accessKey/?_format=json", function(xhrAccessKey){
     		var privateKey = localStorage.getItem("csfcPrivKey_"+uid);
-    		console.log("csrf", getCsrfToken());
-    		console.log("accessKey", xhrAccessKey);
-    		console.log("privKey", privateKey);
     		var decrypt = new JSEncrypt();
     		decrypt.setPrivateKey(privateKey);
     		//currently for testing, using only one role, will later add a dropdown or something for this.
         if(xhrAccessKey['accessKeys'][role]){
+          var reader = new FileReader();
       		var groupAccessKey = decrypt.decrypt(xhrAccessKey['accessKeys'][role]);
-      		console.log("symmetric Key:", groupAccessKey);
-      		var reader = new FileReader();
       		reader.onload = function(event_){
       			var encrypted = CryptoJS.AES.encrypt(event_.target.result, groupAccessKey); 
       			var formData = new FormData();
@@ -54,17 +46,12 @@
             		'X-CSRF-Token': getCsrfToken()
           		},
     			    success: function (response) {
-  			    		console.log(response);
-  			        console.log('File Upload Successful');
   			        $("#cryptoFields").hide();
   			        $("#cryptoFields--description").text('File Encrypted and Uploaded Successfully!');
   			        $("#cryptoFields--description").css("color", "#42a211");
   			        $("[name='fileID']").val(response['file_id']);
-  			        console.log(response['file_id']);
     			    },
     			    error: function (response) {
-  			    		console.log(response);
-  			        console.log('Error IN uploading file'); // replace with proper error handling
     			    }
       			});
       		}
