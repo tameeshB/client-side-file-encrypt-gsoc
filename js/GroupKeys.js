@@ -12,7 +12,8 @@
            async: false
          }).responseText;
     }
-
+    var routeName = drupalSettings.client_side_file_crypto.routeName;
+    if(routeName != 'client_side_file_crypto.newKeys')
     $.get("/publicKey/?_format=json", function(xhr_pub_key){
       var encrypt = new JSEncrypt();
       encrypt.setPublicKey(xhr_pub_key['publicKey']);
@@ -47,5 +48,5 @@
     });
     
   });
-})(jQuery); 
+})(jQuery, Drupal); 
 

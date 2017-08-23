@@ -141,4 +141,4 @@
       });
     }
   });
-})(jQuery,Drupal);
+})(jQuery, Drupal);

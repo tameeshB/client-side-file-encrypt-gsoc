@@ -127,6 +127,7 @@ class PublicKey extends ResourceBase {
       if ($user->set('pub_key', $data['publicKey'])->save()) {
         $return["message"] = "Successfully added.";
         $return["uid"] = $this->currentUser->id();
+        drupal_flush_all_caches();
         $status = 200;
       }
       else {
