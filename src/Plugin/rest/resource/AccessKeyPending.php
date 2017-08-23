@@ -91,21 +91,24 @@ class AccessKeyPending extends ResourceBase {
     $current_user = User::load($this->currentUser->id());
     // Array of all the roles of the current user.
     $roles = $current_user->getRoles();
-    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE ( roleName in (:roles[]) AND userID <> :uid AND needsKey = :keyval)", [
-      ':keyval' => 1,
-      ':roles[]' => $roles,
-      ':uid' => $current_user->id(),
-    ]);
+    $query = db_select('client_side_file_crypto_Keys');
+    $query->condition('userID', $current_user->id(), '<>');
+    $query->condition('needsKey', 1);
+    $query->condition('roleName', $roles, 'in');
+    $query->addField('client_side_file_crypto_Keys', 'roleName');
+    $query->addField('client_side_file_crypto_Keys', 'userID');
+    $query->addField('client_side_file_crypto_Keys', 'keyIndex');
+    $db_result = $query->execute();
     if ($db_result) {
-      while ($row = $db_result->fetchAssoc()) {
-        $accessKey = $this->getAccessKey($row['roleName']);
+      foreach ($db_result as $record) {
+        $accessKey = $this->getAccessKey($record->roleName);
         if ($accessKey != -1) {
-          $thisUserPubKey = $this->getPubKey($row['userID']);
+          $thisUserPubKey = $this->getPubKey($record->userID);
           if ($thisUserPubKey) {
             $pendingKeys[] = [
-              'index' => $row['keyIndex'],
-              'uid' => $row['userID'],
-              'role' => $row['roleName'],
+              'index' => $record->keyIndex,
+              'uid' => $record->userID,
+              'role' => $record->roleName,
               'pub_key' => $thisUserPubKey,
               'access_key' => $accessKey,
             ];
@@ -165,13 +168,14 @@ class AccessKeyPending extends ResourceBase {
   public function getAccessKey($role) {
     $accessKeys = -1;
     $current_user = User::load(\Drupal::currentUser()->id());
-    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (userID = :uid AND needsKey = :needsKeyVal AND roleName = :roleName)", [
-      ':uid' => $current_user->get('uid')->value,
-      ':needsKeyVal' => 0,
-      ':roleName' => $role,
-    ]);
-    while ($row = $db_result->fetchAssoc()) {
-      $accessKeys = $row["accessKey"];
+    $query = db_select('client_side_file_crypto_Keys');
+    $query->condition('userID', $current_user->get('uid')->value);
+    $query->condition('needsKey', 0);
+    $query->condition('roleName', $role);
+    $query->addField('client_side_file_crypto_Keys', 'accessKey');
+    $db_result = $query->execute();
+    foreach ($db_result as $record) {
+      $accessKeys = $result->accessKey;
     }
     return $accessKeys;
   }

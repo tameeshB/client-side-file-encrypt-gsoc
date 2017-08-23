@@ -93,13 +93,14 @@ class GroupKeys extends ResourceBase {
     // Array of all the roles of the current user.
     $roles = $current_user->getRoles();
     foreach ($roles as $role) {
-      $db_result = db_query("SELECT COUNT(*) FROM {client_side_file_crypto_Keys} WHERE ( roleName = :role AND needsKey = :keyval)", [
-        ':role' => $role,
-        ':keyval' => 0,
-      ]);
+      $query = db_select('client_side_file_crypto_Keys');
+      $query->condition('roleName', $role);
+      $query->condition('needsKey', 0);
+      $query->addExpression('COUNT(*)', 'keyCount');
+      $db_result = $query->execute();
       if ($db_result) {
-        while ($row = $db_result->fetchAssoc()) {
-          if ($row['COUNT(*)'] == 0) {
+        foreach ($db_result as $record) {
+          if($record->keyCount==0){
             $pendingRoles[] = $role;
           }
         }

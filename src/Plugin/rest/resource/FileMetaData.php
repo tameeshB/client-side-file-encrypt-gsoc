@@ -93,22 +93,26 @@ class FileMetaData extends ResourceBase {
     $current_user = User::load($this->currentUser->id());
     // Array of all the roles of the current user.
     $roles = $current_user->getRoles();
-    $db_result = db_query("SELECT * FROM {client_side_file_crypto_files} WHERE (nodeID = :nodeID AND roleName in (:roles[]))", [
-      ':nodeID' => $nodeID,
-      ':roles[]' => $roles,
-    // Insert into client_side_file_crypto_files(`fileName`,`nodeID`,`roleName`,`pathToFile`) values ('Test File','1','authenticated','https://avatars1.githubusercontent.com/u/20886076?v=4&s=460')
-    ]);
+    $query = db_select('client_side_file_crypto_files');
+    $query->condition('nodeID', $nodeID);
+    $query->condition('roleName', $roles, 'in');
+    $query->addField('client_side_file_crypto_files', 'roleName');
+    $query->addField('client_side_file_crypto_files', 'fileName');
+    $query->addField('client_side_file_crypto_files', 'fileID');
+    $query->addField('client_side_file_crypto_files', 'MIMEtype');
+    $query->addField('client_side_file_crypto_files', 'isImage');
+    $query->addField('client_side_file_crypto_files', 'pathToFile');
     // Db num rows condition.
     if ($db_result) {
       $fileIndex = 0;
       $files = [];
-      while ($row = $db_result->fetchAssoc()) {
-        $files[$fileIndex]["name"] = $row["fileName"];
-        $files[$fileIndex]["fileIndex"] = $row["fileID"];
-        $files[$fileIndex]["roleName"] = $row["roleName"];
-        $files[$fileIndex]["MIMEtype"] = $row["MIMEtype"];
-        $files[$fileIndex]["isImage"] = $row["isImage"];
-        $files[$fileIndex++]["path"] = $row["pathToFile"];
+      foreach ($db_result as $record) {
+        $files[$fileIndex]["name"] = $record->fileName;
+        $files[$fileIndex]["fileIndex"] = $record->fileID;
+        $files[$fileIndex]["roleName"] = $record->roleName;
+        $files[$fileIndex]["MIMEtype"] = $record->MIMEtype;
+        $files[$fileIndex]["isImage"] = $record->isImage;
+        $files[$fileIndex++]["path"] = $record->pathToFile;
       }
       if (count($files) > 0) {
         $return["message"] = "File Metadata Fetch Complete.";
