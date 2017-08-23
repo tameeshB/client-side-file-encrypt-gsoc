@@ -100,7 +100,7 @@ class GroupKeys extends ResourceBase {
       $db_result = $query->execute();
       if ($db_result) {
         foreach ($db_result as $record) {
-          if($record->keyCount==0){
+          if ($record->keyCount == 0) {
             $pendingRoles[] = $role;
           }
         }

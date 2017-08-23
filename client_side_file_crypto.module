@@ -177,7 +177,7 @@ function client_side_file_crypto_user_update($account) {
   $rolesUpdated = $user->getRoles();
   $rolesExisting = [];
   $query = db_select('client_side_file_crypto_Keys');
-  $query->condition('userID',$account->id());
+  $query->condition('userID', $account->id());
   $query->addField('client_side_file_crypto_Keys', 'roleName');
   $db_result = $query->execute();
   if ($db_result) {
