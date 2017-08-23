@@ -1,0 +1,5 @@
+services:
+  client_side_file_crypto.route_subscriber:
+    class: Drupal\client_side_file_crypto\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }

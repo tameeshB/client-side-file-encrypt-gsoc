@@ -1,0 +1,16 @@
+langcode: en
+status: true
+dependencies: {  }
+id: group_key_pending
+plugin_id: 'group_key_pending'
+granularity: resource
+configuration:
+  methods:
+    - GET
+    - POST
+  formats:
+    - json
+    - hal_json
+  authentication:
+    - cookie
+    - basic_auth

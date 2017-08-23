@@ -4,18 +4,21 @@ csfcPubKeyGen:
     js/pubkeyGen.js: {}
     /libraries/client_side_file_crypto/sjcl.js: {}
     /libraries/client_side_file_crypto/jsencrypt.js: {}
+    /libraries/client_side_file_crypto/cryptojs.js: {}
   dependencies:
   - core/jquery
+  - core/drupalSettings
 csfcUpdatePendingKeys:
   version: 1.x
   js:
     js/updatePendingKeys.js: {}
+    js/GroupKeys.js: {}
     /libraries/client_side_file_crypto/sjcl.js: {}
     /libraries/client_side_file_crypto/jsencrypt.js: {}
-    js/GroupKeys.js: {}
     /libraries/client_side_file_crypto/cryptojs.js: {}
   dependencies:
   - core/jquery
+  - core/drupalSettings
 csfcEncrypt:
   version: 1.x
   js:
@@ -25,6 +28,7 @@ csfcEncrypt:
     /libraries/client_side_file_crypto/jsencrypt.js: {}
   dependencies:
   - core/jquery
+  - core/drupalSettings
 csfcDecrypt:
   version: 1.x
   js:
@@ -34,9 +38,14 @@ csfcDecrypt:
     /libraries/client_side_file_crypto/cryptojs.js: {}
   dependencies:
   - core/jquery
-test1:
+  - core/drupalSettings
+csfcRestoreKeys:
   version: 1.x
   js:
-    js/test.js: {}
+    js/restore.js: {}
+    /libraries/client_side_file_crypto/sjcl.js: {}
+    /libraries/client_side_file_crypto/jsencrypt.js: {}
+    /libraries/client_side_file_crypto/cryptojs.js: {}
   dependencies:
   - core/jquery
+  - core/drupalSettings

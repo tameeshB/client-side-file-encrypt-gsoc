@@ -91,26 +91,30 @@ class AccessKey extends ResourceBase {
     $needsKey = 1;
     $result = [];
     $current_user = User::load($this->currentUser->id());
-    $db_result = db_query("SELECT * FROM {client_side_file_crypto_Keys} WHERE (userID = :uid AND needsKey = :needsKeyVal)", [
-      ':uid' => $current_user->get('uid')->value,
-      ':needsKeyVal' => 0,
-    ]);
+    $query = db_select('client_side_file_crypto_Keys');
+    $query->condition('userID', $current_user->get('uid')->value);
+    $query->condition('needsKey', 0);
+    $query->addField('client_side_file_crypto_Keys', 'roleName');
+    $query->addField('client_side_file_crypto_Keys', 'accessKey');
+    $db_result = $query->execute();
     // Db num rows condition.
     if ($db_result) {
       $accessKeyIndex = 0;
       $accessKeys = [];
-      while ($row = $db_result->fetchAssoc()) {
-        $accessKeys[$row["roleName"]] = $row["accessKey"];
+      foreach ($db_result as $record) {
+        $accessKeys[$record->roleName] = $record->accessKey;
       }
-      if (count($accessKeys) > 0) {
+      if (!empty($accessKeys)) {
         $return["message"] = "AccessKey Fetch Complete.";
         $return["keyCount"] = count($accessKeys);
         $return["accessKeys"] = $accessKeys;
         $status = 200;
       }
       else {
-        $return["message"] = "Unable to fetch keys";
-        $status = 204;
+        $return["message"] = "Empty set.";
+        $return["keyCount"] = 0;
+        $return["accessKeys"] = [];
+        $status = 200;
       }
 
     }
@@ -130,7 +134,7 @@ class AccessKey extends ResourceBase {
    *   Throws exception expected.
    */
   public function post(array $data = []) {
-    $status = 404;
+    $status = 400;
     $return = [];
     // Use current user after pass authentication to validate access.
     if (!$this->currentUser->hasPermission('access content')) {

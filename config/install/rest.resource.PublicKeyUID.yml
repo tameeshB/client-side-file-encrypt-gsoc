@@ -1,0 +1,16 @@
+langcode: en
+status: true
+dependencies: {  }
+id: public_key_UID
+plugin_id: 'public_key_UID'
+granularity: resource
+configuration:
+  methods:
+    - GET
+    - POST
+  formats:
+    - json
+    - hal_json
+  authentication:
+    - cookie
+    - basic_auth

@@ -18,7 +18,101 @@ function client_side_file_crypto_form_user_login_form_alter(&$form, FormState $f
 }
 
 /**
- * Node preprocess hook, adds the decryption library to the .
+ * Implements hook_user_login().
+ */
+function client_side_file_crypto_user_login($account) {
+  drupal_flush_all_caches();
+}
+
+/**
+ * Implements hook_page_attachments().
+ */
+function client_side_file_crypto_page_attachments(&$page) {
+  global $base_url;
+  $route_match = \Drupal::routeMatch();
+  $user = \Drupal::currentUser();
+  $node = $route_match->getParameter('node');
+  $nid = ($node) ? $node->id() : -1;
+  $routeName = $route_match->getRouteName();
+  $blockedRoutes = [
+    'client_side_file_crypto.newKeys',
+    'client_side_file_crypto.postLogin',
+  ];
+  if (!User::load($user->id())->get('pub_key')->value && $user->id() != 0 && in_array($routeName, $blockedRoutes)) {
+    // user_logout();
+  }
+  $page['#attached']['library'][] = 'client_side_file_crypto/csfcUpdatePendingKeys';
+  $page['#attached']['drupalSettings']['client_side_file_crypto']['uid'] = $user->id();
+  $page['#attached']['drupalSettings']['client_side_file_crypto']['nodeid'] = $nid;
+  $page['#attached']['drupalSettings']['client_side_file_crypto']['baseURL'] = $base_url;
+  $page['#attached']['drupalSettings']['client_side_file_crypto']['routeName'] = $routeName;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Attaches post submission method to node form.
+ */
+function client_side_file_crypto_form_node_form_alter(&$form, FormState $form_state, $form_id) {
+  $form['#attached'] = [
+    'library' => [
+      'client_side_file_crypto/csfcEncrypt',
+    ],
+  ];
+  $form['cryptoFields'] = [
+    '#type' => 'file',
+    '#title' => t('Encrypted file'),
+    '#id' => 'cryptoFields',
+    '#weight' => 15,
+    '#description' => t('Attach your file with sensitive data here.'),
+  ];
+  $form['fileID'] = [
+    '#type' => 'hidden',
+    '#id' => 'fileID',
+    '#title' => t('Encrypted file ID'),
+    '#weight' => 14,
+  ];
+
+  $current_user = \Drupal::currentUser();
+  $roles = $current_user->getRoles();
+  $roleOptions = [];
+  foreach ($roles as $key => $value) {
+    $roleOptions[$value] = $value;
+  }
+  $form['roleSelect'] = [
+    '#type' => 'select',
+    '#id' => 'roleSelect',
+    '#title' => t('Encrypt for role'),
+    '#default_value' => $roles[0],
+    '#options' => $roleOptions,
+    '#weight' => 13,
+    '#description' => t('Select role to encrypt for.'),
+  ];
+
+  foreach (array_keys($form['actions']) as $action) {
+    if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
+      $form['actions'][$action]['#submit'][] = 'client_side_file_crypto_form_submit';
+    }
+  }
+}
+
+/**
+ * Form submission handler for node_form_submit().
+ *
+ * Encrypted file upload link for new node.
+ */
+function client_side_file_crypto_form_submit(array $form, FormState $form_state) {
+  $query = \Drupal::database()->update('client_side_file_crypto_files');
+  $query->fields([
+    'nodeID' => $form_state->getValue('nid'),
+  ]);
+  $query->condition('fileIndex', $form_state->getValue('fileID'));
+  $query->execute();
+
+}
+
+/**
+ * Node preprocess hook, adds the decryption library to the nodes.
  */
 function client_side_file_crypto_preprocess_node(&$variables) {
   $node = $variables['node'];
@@ -34,18 +128,98 @@ function client_side_file_crypto_user_login_submit(&$form, FormState $form_state
   $uid = \Drupal::currentUser()->id();
   $user = User::load($uid);
   $pubKeyAvailable = $user->get('pub_key')->value;
-  if ($pubKeyAvailable != NULL || $pubKeyAvailable != "") {
-    $url = Url::fromRoute('client_side_file_crypto.postLogin');
-  }
-  else {
+  if ($pubKeyAvailable == NULL || $pubKeyAvailable == "") {
     $url = Url::fromRoute('client_side_file_crypto.newKeys');
+    $request = \Drupal::service('request_stack')->getCurrentRequest();
+    if (!$request->request->has('destination')) {
+      $form_state->setRedirectUrl($url);
+    }
+    else {
+      $request->query->set('destination', $request->request->get('destination'));
+    }
   }
-  $request = \Drupal::service('request_stack')->getCurrentRequest();
-  if (!$request->request->has('destination')) {
-    $form_state->setRedirectUrl($url);
+
+}
+
+/**
+ * Implements hook_user_insert().
+ */
+function client_side_file_crypto_user_insert($account) {
+  $user = \Drupal::entityManager()->getStorage('user')->load($account->id());
+  $values = [];
+  $roles = $user->getRoles();
+  foreach ($roles as $role) {
+    $values[] = [
+      'accessKey' => '100',
+      'roleName' => $role,
+      'userID' => $account->id(),
+      'needsKey' => 1,
+    ];
   }
-  else {
-    $request->query->set('destination', $request->request->get('destination'));
+  $query = db_insert('client_side_file_crypto_Keys')->fields([
+    'accessKey',
+    'roleName',
+    'userID',
+  ]
+  );
+  foreach ($values as $record) {
+    $query->values($record);
+  }
+  $query->execute();
+}
+
+/**
+ * Implements hook_user_update().
+ */
+function client_side_file_crypto_user_update($account) {
+  $user = \Drupal::entityManager()->getStorage('user')->load($account->id());
+  $values = [];
+  $rolesUpdated = $user->getRoles();
+  $rolesExisting = [];
+  $query = db_select('client_side_file_crypto_Keys');
+  $query->condition('userID', $account->id());
+  $query->addField('client_side_file_crypto_Keys', 'roleName');
+  $db_result = $query->execute();
+  if ($db_result) {
+    foreach ($db_result as $record) {
+      $rolesExisting[] = $record->roleName;
+    }
+  }
+
+  // Stores all rolenames that have keys for the edited user and the user has
+  // been removed from that role.
+  $rolesToRemove = array_diff($rolesExisting, $rolesUpdated);
+  if (count($rolesToRemove)) {
+    db_delete('client_side_file_crypto_Keys')
+      ->condition('roleName', $rolesToRemove, 'in')
+      ->condition('userID', $account->id(), '=')
+      ->execute();
+  }
+
+  // Stores all rolenames that dont have keys for the edited user and the user
+  // has been just added to that role.
+  $rolesToAdd = array_diff($rolesUpdated, $rolesExisting);
+
+  $values = [];
+  foreach ($rolesToAdd as $role) {
+    $values[] = [
+      'accessKey' => '100',
+      'roleName' => $role,
+      'userID' => $account->id(),
+      'needsKey' => 1,
+    ];
+  }
+  $query = db_insert('client_side_file_crypto_Keys')->fields([
+    'accessKey',
+    'roleName',
+    'userID',
+  ]
+  );
+  foreach ($values as $record) {
+    $query->values($record);
+  }
+  if (count($values)) {
+    $query->execute();
   }
 }
 

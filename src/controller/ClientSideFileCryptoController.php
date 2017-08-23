@@ -42,6 +42,7 @@ class ClientSideFileCryptoController extends ControllerBase {
    *   returns the render array for the page to redirect to post login.
    */
   public function postLoginCheck() {
+    global $user;
     $output = [];
     $output['heading1'] = [
       '#type' => 'markup',
@@ -59,13 +60,40 @@ class ClientSideFileCryptoController extends ControllerBase {
    * Display the markup.
    *
    * @return array
+   *   returns the render array for the page to redirect to post login.
+   */
+  public function postKeyGenRedirect() {
+    drupal_flush_all_caches();
+    return $this->redirect('user.page');
+  }
+
+  /**
+   * Display the markup.
+   *
+   * @return array
    *   returns the render array for the page to reload keys.
    */
-  public function reloadKeys() {
-    return [
+  public function restoreKeys() {
+    $output['head'] = [
       '#type' => 'markup',
       '#markup' => $this->t('You can reload the private key on the browser by uploading the .pem file here'),
+      '#attached' => [
+        'library' => [
+          'client_side_file_crypto/csfcRestoreKeys',
+        ],
+      ],
     ];
+    $output['privKey'] = [
+      '#type' => 'file',
+      '#title' => t('Private Key'),
+      '#id' => 'privKey',
+    ];
+    $output['errMessage'] = [
+      '#type' => 'markup',
+      '#id' => 'errMessage',
+      '#markup' => "<div id ='errMessage_'>" . $this->t('Upload PrivateKey.pem here.') . "</div>",
+    ];
+    return $output;
   }
 
 }
