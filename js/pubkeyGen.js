@@ -38,41 +38,6 @@
     return pubKeyObject.publicKey;
   }
 
-  // /**
-  //  * Generating group keys for keys with no access keys generated yet.
-  //  */
-  // function generateGroupKeys(publicKey){
-  //   console.log('this called');
-  //   $.get("/groupKeys?_format=json", function(pendingRoles){
-  //     var pendingRoleNames = pendingRoles['roleNames'];
-  //     pendingRoleNames.forEach(function(roleName) {
-  //       var encrypt = new JSEncrypt();
-  //       encrypt.setPublicKey(publicKey);
-  //       var aesKey = CryptoJS.enc.Hex.stringify(CryptoJS.lib.WordArray.random(16));
-  //       var aesKeyStr = aesKey.toString();
-  //       var newAccessKey = encrypt.encrypt(aesKeyStr);
-  //       var jsonBody = {
-  //         "accessKey" : newAccessKey,
-  //         "roleName" : roleName,
-  //         "userID" : pendingRoles['userID'],
-  //       };
-  //       jQuery.ajax({
-  //         url: '/accessKey/?_format=json',
-  //         method: 'POST',
-  //         headers: {
-  //           'Content-Type': 'application/hal+json',
-  //           'X-CSRF-Token': getCsrfToken()
-  //         },
-  //         data: JSON.stringify(jsonBody),
-  //         success: function (node) {
-  //         }
-  //       }).done(function(data) {
-  //       });
-  //     });
-  //   });
-  // }
-  
-
   $(document).ready(function(){
     var uid = drupalSettings.client_side_file_crypto.uid;
     var baseURL = drupalSettings.client_side_file_crypto.baseURL;
