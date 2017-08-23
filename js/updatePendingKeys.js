@@ -12,46 +12,62 @@
            url: "/rest/session/token",
            async: false
          }).responseText;
-    }
+     }
 
-    $.get("../publicKey/?_format=json", function(xhr_pub_key){
-      var publicKey = xhr_pub_key['publicKey'];
-      var privateKey = localStorage.getItem("privKey");
-      var encrypt = new JSEncrypt();
-      $.get("../accessKey/pending?_format=json", function(pending_keys_json){
-        var decrypt = new JSEncrypt();
-        decrypt.setPrivateKey(privateKey);
-        pending_keys = pending_keys_json['accessKeys'];
-        pending_keys.forEach(function(accessKey) {
-          var group_access_key = decrypt.decrypt(accessKey['access_key']);
-          encrypt.setPublicKey(accessKey['pub_key']);
-          var new_access_key = encrypt.encrypt(group_access_key);
-          //for testing
-          console.log(group_access_key);
-          console.log(new_access_key);
-          //JSON content to send
-          var json_body = {
-            "accessKey" : new_access_key,
-            "roleName" : accessKey['role'],
-            "userID" : accessKey['uid'],
-          };
-          //AJAX XHR
-          jQuery.ajax({
-            url: '../accessKey/?_format=json',
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/hal+json',
-              'X-CSRF-Token': getCsrfToken()
-            },
-            data: JSON.stringify(json_body),
-            success: function (node) {
-              console.log(node);
+    var uid = drupalSettings.client_side_file_crypto.uid;
+    var baseURL = drupalSettings.client_side_file_crypto.baseURL;
+    var routeName = drupalSettings.client_side_file_crypto.routeName;
+    var blockedRoutes = [
+      //'client_side_file_crypto.postLogin',
+      //'client_side_file_crypto.newKeys',
+      ];
+    if(jQuery.inArray(routeName , blockedRoutes)==-1 && uid!=0){
+      $.get(baseURL + "/publicKey/?_format=json", function(xhrPubKey){
+        var publicKey = xhrPubKey['publicKey'];
+        if(!publicKey && uid != 0 && routeName != 'client_side_file_crypto.newKeys'){
+          window.location = baseURL + '/user/logout/';
+        }
+        var privateKey = localStorage.getItem("csfcPrivKey_" + uid);
+        var encrypt = new JSEncrypt();
+        $.get("/accessKey/pending?_format=json", function(pendingKeysJSON){
+          var decrypt = new JSEncrypt();
+          decrypt.setPrivateKey(privateKey);
+          pendingKeys = pendingKeysJSON['accessKeys'];
+          pendingKeys.forEach(function(accessKey) {
+            var groupAccessKey = decrypt.decrypt(accessKey['access_key']);
+            encrypt.setPublicKey(accessKey['pub_key']);
+            var newAccessKey = encrypt.encrypt(groupAccessKey);
+            if(!newAccessKey || !groupAccessKey){
+              //error
+            } else {
+              var jsonBody = {
+                "accessKey" : newAccessKey,
+                "roleName" : accessKey['role'],
+                "userID" : accessKey['uid'],
+              };
+              jQuery.ajax({
+                url: '/accessKey/?_format=json',
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/hal+json',
+                  'X-CSRF-Token': getCsrfToken()
+                },
+                data: JSON.stringify(jsonBody),
+                success: function (node) {
+                }
+              }).done(function(data) {
+              });
             }
-          }).done(function(data) {
-              console.log(data);
           });
         });
       });
-    });
+    }
   });
-})(jQuery); 
+  $(document).ajaxStop(function() {
+    if(drupalSettings.client_side_file_crypto.routeName == 'client_side_file_crypto.postLogin'){
+      setTimeout(function(){ 
+        window.location="/";
+      }, 5000);
+    }
+  });
+})(jQuery, Drupal); 

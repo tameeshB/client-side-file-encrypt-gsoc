@@ -6,6 +6,14 @@ client_side_file_crypto.newKeys:
   requirements:
     _permission: 'access content'
     _user_is_logged_in: 'TRUE'
+client_side_file_crypto.postKeyGenRedirect:
+  path: '/user/keyGenRedirect'
+  defaults:
+    _controller: '\Drupal\client_side_file_crypto\Controller\ClientSideFileCryptoController::postKeyGenRedirect'
+    _title: 'Redirect after new key-pair generation'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
 client_side_file_crypto.postLogin:
   path: '/user/postLogin'
   defaults:
@@ -14,11 +22,17 @@ client_side_file_crypto.postLogin:
   requirements:
     _permission: 'access content'
     _user_is_logged_in: 'TRUE'
-client_side_file_crypto.reloadKeys:
-  path: '/user/reloadKey'
+client_side_file_crypto.restoreKeys:
+  path: '/user/restoreKey'
   defaults:
-    _controller: '\Drupal\client_side_file_crypto\Controller\ClientSideFileCryptoController::reloadKeys'
-    _title: 'Reload the private key'
+    _controller: '\Drupal\client_side_file_crypto\Controller\ClientSideFileCryptoController::restoreKeys'
+    _title: 'Restore the private key'
   requirements:
     _permission: 'access content'
     _user_is_logged_in: 'TRUE'
+client_side_file_crypto.fileupload:
+  path: 'encryptedFileUpload'
+  defaults: { _controller: '\Drupal\client_side_file_crypto\Controller\FileUploadController::create' }
+  methods:  [POST]
+  requirements:
+    _custom_access: '\Drupal\client_side_file_crypto\Controller\FileUploadController::access'

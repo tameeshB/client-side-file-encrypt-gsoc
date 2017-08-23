@@ -1,0 +1,16 @@
+langcode: en
+status: true
+dependencies: {  }
+id: FileMetaData
+plugin_id: 'FileMetaData'
+granularity: resource
+configuration:
+  methods:
+    - GET
+    - POST
+  formats:
+    - json
+    - hal_json
+  authentication:
+    - cookie
+    - basic_auth

@@ -90,7 +90,7 @@ class PublicKeyUID extends ResourceBase {
     if ($uid) {
       if ($user = User::load($uid)) {
         $return["publicKey"] = $user->get('pub_key')->value;
-        $return["uid"] = $user->get('name')->value;
+        $return["uid"] = $user->id();
         $return["message"] = "Success!";
         $status = 200;
       }

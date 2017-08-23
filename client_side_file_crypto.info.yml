@@ -6,3 +6,5 @@ package: Encryption
 dependencies:
   - drupal:rest
   - drupal:user
+  - drupal:hal
+  - drupal:basic_auth
