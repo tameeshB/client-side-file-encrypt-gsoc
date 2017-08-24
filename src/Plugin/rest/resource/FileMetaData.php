@@ -98,17 +98,18 @@ class FileMetaData extends ResourceBase {
     $query->condition('roleName', $roles, 'in');
     $query->addField('client_side_file_crypto_files', 'roleName');
     $query->addField('client_side_file_crypto_files', 'fileName');
-    $query->addField('client_side_file_crypto_files', 'fileID');
+    $query->addField('client_side_file_crypto_files', 'fileIndex');
     $query->addField('client_side_file_crypto_files', 'MIMEtype');
     $query->addField('client_side_file_crypto_files', 'isImage');
     $query->addField('client_side_file_crypto_files', 'pathToFile');
+    $db_result = $query->execute();
     // Db num rows condition.
     if ($db_result) {
       $fileIndex = 0;
       $files = [];
       foreach ($db_result as $record) {
         $files[$fileIndex]["name"] = $record->fileName;
-        $files[$fileIndex]["fileIndex"] = $record->fileID;
+        $files[$fileIndex]["fileIndex"] = $record->fileIndex;
         $files[$fileIndex]["roleName"] = $record->roleName;
         $files[$fileIndex]["MIMEtype"] = $record->MIMEtype;
         $files[$fileIndex]["isImage"] = $record->isImage;
