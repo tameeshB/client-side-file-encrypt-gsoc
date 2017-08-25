@@ -46,6 +46,13 @@ function client_side_file_crypto_page_attachments(&$page) {
   $page['#attached']['drupalSettings']['client_side_file_crypto']['nodeid'] = $nid;
   $page['#attached']['drupalSettings']['client_side_file_crypto']['baseURL'] = $base_url;
   $page['#attached']['drupalSettings']['client_side_file_crypto']['routeName'] = $routeName;
+  if(!file_exists('libraries/client_side_file_crypto/jsencrypt.js')){
+    drupal_set_message(t('jsencrypt.js library not in place, please follow instructions on the module page <a href="https://www.drupal.org/project/client_side_file_crypto/">here.</a>'),'error');
+  }
+  if(!file_exists('libraries/client_side_file_crypto/cryptojs.js')){
+    drupal_set_message(t('cryptojs.js library not in place, please follow instructions on the module page <a href="https://www.drupal.org/project/client_side_file_crypto/">here.</a>'),'error');
+  }
+  
 }
 
 /**
