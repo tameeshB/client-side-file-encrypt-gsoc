@@ -1,26 +1,27 @@
 // Jquery wrapper for drupal to avoid conflicts between libraries.
 (function ($) {
+  var baseURL = drupalSettings.client_side_file_crypto.baseURL;
   /**
    * Method to return the csrf token
    */
   function getCsrfToken() {
     return $.ajax({
       type: "GET",
-        url: "/rest/session/token",
-        async: false
+        url: baseURL + "/rest/session/token",
+      async: false
       }).responseText;
   }
 
   var file = undefined;
   $(document).ready(function(){
-    $(".node-form").attr("action", "/node/add/"+$(".node-form").attr('data-drupal-selector').split("-")[1]);
+    $(".node-form").attr("action", "/node/add/" + $(".node-form").attr('data-drupal-selector').split("-")[1]);
     var uid = drupalSettings.client_side_file_crypto.uid;
     $("#cryptoFields").change(function(e){
       e.preventDefault();
       file = e.target.files[0];
       var role = $("#roleSelect").val();
       var fileName = "encrypted_" + file.name;
-      $.get("/accessKey/?_format=json", function(xhrAccessKey){
+      $.get(baseURL + "/accessKey/?_format=json", function(xhrAccessKey){
         var privateKey = localStorage.getItem("csfcPrivKey_" + uid);
         var decrypt = new JSEncrypt();
         decrypt.setPrivateKey(privateKey);
@@ -37,7 +38,7 @@
             formData.append('csfcRoleName', role);
 
             $.ajax({
-              url: '/encryptedFileUpload',
+              url: baseURL + '/encryptedFileUpload',
               data: formData,
               processData: false,
               contentType: false,

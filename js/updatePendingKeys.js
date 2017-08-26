@@ -2,6 +2,7 @@
 (function ($) {
   // Jquery onload function.
   $(document).ready(function(){
+    var baseURL = drupalSettings.client_side_file_crypto.baseURL;
 
     /**
      * Method to return the csrf token
@@ -9,13 +10,12 @@
     function getCsrfToken() {
        return $.ajax({
          type: "GET",
-           url: "/rest/session/token",
+           url: baseURL + "/rest/session/token",
            async: false
          }).responseText;
      }
 
     var uid = drupalSettings.client_side_file_crypto.uid;
-    var baseURL = drupalSettings.client_side_file_crypto.baseURL;
     var routeName = drupalSettings.client_side_file_crypto.routeName;
     var blockedRoutes = [
       //'client_side_file_crypto.postLogin',
@@ -29,7 +29,7 @@
         }
         var privateKey = localStorage.getItem("csfcPrivKey_" + uid);
         var encrypt = new JSEncrypt();
-        $.get("/accessKey/pending?_format=json", function(pendingKeysJSON){
+        $.get(baseURL + "/accessKey/pending?_format=json", function(pendingKeysJSON){
           var decrypt = new JSEncrypt();
           decrypt.setPrivateKey(privateKey);
           pendingKeys = pendingKeysJSON['accessKeys'];
@@ -46,7 +46,7 @@
                 "userID" : accessKey['uid'],
               };
               jQuery.ajax({
-                url: '/accessKey/?_format=json',
+                url: baseURL + '/accessKey/?_format=json',
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/hal+json',

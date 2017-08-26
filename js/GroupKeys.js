@@ -2,22 +2,25 @@
 (function ($) {
   // Jquery onload function.
   $(document).ready(function(){
+    var baseURL = drupalSettings.client_side_file_crypto.baseURL;
+    
     /**
      * Method to return the csrf token
      */
     function getCsrfToken() {
        return $.ajax({
          type: "GET",
-           url: "/rest/session/token",
+           url: baseURL + "/rest/session/token",
            async: false
          }).responseText;
     }
+    
     var routeName = drupalSettings.client_side_file_crypto.routeName;
     if(routeName != 'client_side_file_crypto.newKeys')
-    $.get("/publicKey/?_format=json", function(xhr_pub_key){
+    $.get(baseURL + "/publicKey/?_format=json", function(xhr_pub_key){
       var encrypt = new JSEncrypt();
       encrypt.setPublicKey(xhr_pub_key['publicKey']);
-      $.get("/groupKeys?_format=json", function(pending_roles){
+      $.get(baseURL + "/groupKeys?_format=json", function(pending_roles){
         var pending_role_names = pending_roles['roleNames'];
         if(pending_role_names.length>0){
           pending_role_names.forEach(function(role_name) {
@@ -30,7 +33,7 @@
               "userID" : pending_roles['userID'],
             };
             jQuery.ajax({
-              url: '../accessKey/?_format=json',
+              url: baseURL + '/accessKey/?_format=json',
               method: 'POST',
               headers: {
                 'Content-Type': 'application/hal+json',

@@ -4,6 +4,7 @@
   
   $(document).ready(function(){
     var uid = drupalSettings.client_side_file_crypto.uid;
+    var baseURL = drupalSettings.client_side_file_crypto.baseURL;
     var file = null;
     var encryptedFileList = $(".node__content div[property='schema:text']");
 
@@ -11,7 +12,7 @@
     function getCsrfToken() {
       return $.ajax({
         type: "GET",
-        url: "/rest/session/token",
+        url: baseURL + "/rest/session/token",
         async: false
       }).responseText;
     }
@@ -20,7 +21,7 @@
     function getAccessKey(roleName){
       var xhrData = $.ajax({
         type: "GET",
-        url: "/accessKey/?_format=json",
+        url: baseURL + "/accessKey/?_format=json",
         async: false
       }).responseText;
       var accessKeysObject = JSON.parse(xhrData);
@@ -108,7 +109,7 @@
 
     //Fetching the file list and appending to the DOM
     if(nodeID != -1){
-      $.get("../fileMetadata/" + nodeID + "/?_format=json", function(fileMetaData){
+      $.get(baseURL + "/fileMetadata/" + nodeID + "/?_format=json", function(fileMetaData){
         if(fileMetaData.fileCount != 0){
           $(".node__content div[property='schema:text']").append("<h3 class='title'>Encrypted Files</h3>");
           var files = fileMetaData.files;
